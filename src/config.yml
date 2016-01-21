@@ -1,0 +1,13 @@
+##
+##   No Name
+##
+##   |  Minejoy  |
+##   |           |
+##   | Exclusive |
+##
+
+# Prefix of the plugin - Chat related
+prefix: '&8[&aNoName&8] &7'
+
+# Minimum amount of players the game will start with.
+minimum-players: 6

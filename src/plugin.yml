@@ -1,0 +1,9 @@
+name: NoName
+main: me.stalexgaming.noname.Main
+version: 1.0.1
+description: This game is exclusively made for MineJoy
+commands:
+   noname:
+      description: Core command for NoName
+
+depend: [WorldEdit]
