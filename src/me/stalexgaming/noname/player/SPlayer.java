@@ -1,5 +1,6 @@
 package me.stalexgaming.noname.player;
 
+import me.stalexgaming.noname.enums.Team;
 import me.stalexgaming.noname.managers.TeamManager;
 import org.bukkit.entity.Player;
 
@@ -17,7 +18,7 @@ public class SPlayer {
         this.p = p;
     }
 
-    public TeamManager.Team getTeam(){
+    public Team getTeam(){
         return teamManager.getTeam(p);
     }
 
@@ -25,7 +26,7 @@ public class SPlayer {
         return teamManager.hasTeam(p);
     }
 
-    public void setTeam(TeamManager.Team team){
+    public void setTeam(Team team){
         teamManager.setTeam(p, team);
     }
 

@@ -1,8 +1,10 @@
 package me.stalexgaming.noname;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import me.stalexgaming.noname.commands.Commands;
 import me.stalexgaming.noname.listeners.Listeners;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -25,6 +27,14 @@ public class Main extends JavaPlugin {
 
         registerCommands();
         registerListeners();
+    }
+
+    public WorldEditPlugin getWorldEditInstance(){
+        Plugin p = Bukkit.getPluginManager().getPlugin("WorldEdit");
+        if(p instanceof WorldEditPlugin){
+            return (WorldEditPlugin) p;
+        }
+        return null;
     }
 
     public void onDisable(){

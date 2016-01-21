@@ -1,5 +1,7 @@
 package me.stalexgaming.noname.commands;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.bukkit.selections.Selection;
 import me.stalexgaming.noname.Main;
 import me.stalexgaming.noname.utils.Color;
 import me.stalexgaming.noname.utils.LocationUtil;
@@ -79,7 +81,34 @@ public class Commands implements CommandExecutor {
                     }
                 }
             } else if(args.length == 3){
+                if(args[0].equalsIgnoreCase("setspawn")){
+                    if(args[1].equalsIgnoreCase("red") || args[1].equals("blue")){
+                        if(isInt(args[2])){
+                            int point = Integer.parseInt(args[2]);
+                            if(point > 0 && point < 6){
+                                locationsFile.set("arena.spawns." + args[1].toLowerCase() + "." + point, locationUtil.serializeLocation(p.getLocation()));
 
+                                try {
+                                    locationsFile.save(Main.getInstance().locations);
+                                } catch (IOException ex){
+                                    ex.printStackTrace();
+                                    plugin.getLogger().log(Level.SEVERE, "[NoName] Error while saving a team spawn location!");
+                                }
+                                p.sendMessage(Color.p("&7You set &spawn &7number &a" + point + " &7for team &a" + args[1].toLowerCase() + "&7."));
+                                return true;
+                            } else {
+                                p.sendMessage(Color.p("&cThe spawn ID must be a number between 1 and 6!"));
+                                return true;
+                            }
+                        } else {
+                            p.sendMessage(Color.p("&cThe spawn ID must be a number between 1 and 6!"));
+                            return true;
+                        }
+                    } else {
+                        p.sendMessage(Color.p("&cThe specified team: " + args[1] + ", is invalid."));
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -102,5 +131,19 @@ public class Commands implements CommandExecutor {
             return false;
         }
         return true;
+    }
+
+    private boolean hasProperSelection(Player p){
+        WorldEditPlugin wep = plugin.getWorldEditInstance();
+        if(wep.getSelection(p) != null){
+            Selection selection = wep.getSelection(p);
+            Location min = selection.getMinimumPoint();
+            Location max = selection.getMaximumPoint();
+            if(max.getY() == min.getY()){
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package me.stalexgaming.noname.managers;
 
+import me.stalexgaming.noname.enums.Team;
 import me.stalexgaming.noname.utils.Color;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,10 +18,6 @@ public class TeamManager {
     private static TeamManager instance = new TeamManager();
 
     public HashMap<String, Team> playerTeams = new HashMap<>();
-
-    public enum Team {
-        RED, BLUE
-    };
 
     public static TeamManager getInstance(){
         return instance;
@@ -64,7 +61,19 @@ public class TeamManager {
     }
 
     public void removePlayer(Player p){
+        Team team = getTeam(p);
         playerTeams.remove(p.getName());
+
+        Bukkit.broadcastMessage(Color.np(getTeamColor(team) + p.getName() + " has left the game."));
+    }
+
+    public String getTeamColor(Team team){
+        if(team == Team.RED){
+            return "&c";
+        } else if(team == Team.BLUE){
+            return "&b";
+        }
+        return "&f";
     }
 
 }

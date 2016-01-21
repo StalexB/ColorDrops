@@ -1,12 +1,14 @@
 package me.stalexgaming.noname.listeners;
 
 import me.stalexgaming.noname.Main;
+import me.stalexgaming.noname.enums.Team;
 import me.stalexgaming.noname.managers.TeamManager;
 import me.stalexgaming.noname.player.SPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
  * Copyright by Bankras, created on 21-1-2016.
@@ -16,7 +18,6 @@ public class Listeners implements Listener {
 
     Main plugin;
 
-    public TeamManager teamManager = TeamManager.getInstance();
 
     public Listeners(Main main){
         this.plugin = main;
@@ -27,14 +28,22 @@ public class Listeners implements Listener {
         Player p = e.getPlayer();
         SPlayer player = new SPlayer(p);
 
-        int blue = teamManager.getTeamPlayers(TeamManager.Team.BLUE).size();
-        int red = teamManager.getTeamPlayers(TeamManager.Team.RED).size();
+        int blue = Team.BLUE.getPlayers().size();
+        int red = Team.RED.getPlayers().size();
 
         if(blue <= red){
-            player.setTeam(TeamManager.Team.BLUE);
+            player.setTeam(Team.BLUE);
         } else {
-            player.setTeam(TeamManager.Team.RED);
+            player.setTeam(Team.RED);
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e){
+        Player p = e.getPlayer();
+        SPlayer player = new SPlayer(p);
+
+        player.removePlayer();
     }
 
 }
