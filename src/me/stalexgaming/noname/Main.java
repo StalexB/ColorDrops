@@ -20,6 +20,8 @@ public class Main extends JavaPlugin {
 
     public File locations = null;
 
+    public int minimumPlayers;
+
     public void onEnable(){
         instance = this;
 
@@ -27,6 +29,11 @@ public class Main extends JavaPlugin {
 
         registerCommands();
         registerListeners();
+
+        getConfig().options().copyDefaults(true);
+        saveDefaultConfig();
+
+        minimumPlayers = getConfig().getInt("minimum-players");
     }
 
     public WorldEditPlugin getWorldEditInstance(){
