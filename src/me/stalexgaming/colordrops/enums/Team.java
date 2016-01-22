@@ -1,6 +1,6 @@
-package me.stalexgaming.noname.enums;
+package me.stalexgaming.colordrops.enums;
 
-import me.stalexgaming.noname.managers.TeamManager;
+import me.stalexgaming.colordrops.managers.TeamManager;
 import org.bukkit.entity.Player;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package me.stalexgaming.noname.utils;
+package me.stalexgaming.colordrops.utils;
 
 import org.bukkit.ChatColor;
 

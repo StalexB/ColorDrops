@@ -1,4 +1,4 @@
-package me.stalexgaming.noname.enums;
+package me.stalexgaming.colordrops.enums;
 
 /**
  * Copyright by Bankras, created on 21-1-2016.
@@ -15,6 +15,10 @@ public enum GameState {
             return gameState;
         }
         return LOBBY;
+    }
+
+    public void setState(GameState state){
+        gameState = state;
     }
 
 }

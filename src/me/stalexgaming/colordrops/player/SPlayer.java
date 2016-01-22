@@ -1,7 +1,7 @@
-package me.stalexgaming.noname.player;
+package me.stalexgaming.colordrops.player;
 
-import me.stalexgaming.noname.enums.Team;
-import me.stalexgaming.noname.managers.TeamManager;
+import me.stalexgaming.colordrops.enums.Team;
+import me.stalexgaming.colordrops.managers.TeamManager;
 import org.bukkit.entity.Player;
 
 /**

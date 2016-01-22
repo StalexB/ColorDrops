@@ -1,7 +1,7 @@
-package me.stalexgaming.noname.managers;
+package me.stalexgaming.colordrops.managers;
 
-import me.stalexgaming.noname.enums.Team;
-import me.stalexgaming.noname.utils.Color;
+import me.stalexgaming.colordrops.enums.Team;
+import me.stalexgaming.colordrops.utils.Color;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -32,6 +32,15 @@ public class TeamManager {
             return playerTeams.get(p.getName());
         }
         return null;
+    }
+
+    public List<Team> getTeams(){
+        List<Team> teams = new ArrayList<>();
+
+        teams.add(Team.BLUE);
+        teams.add(Team.RED);
+
+        return teams;
     }
 
     public void setTeam(Player p, Team team){

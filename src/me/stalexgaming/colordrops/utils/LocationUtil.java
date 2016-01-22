@@ -1,6 +1,6 @@
-package me.stalexgaming.noname.utils;
+package me.stalexgaming.colordrops.utils;
 
-import me.stalexgaming.noname.Main;
+import me.stalexgaming.colordrops.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 

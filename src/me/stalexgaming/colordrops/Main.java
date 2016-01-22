@@ -1,8 +1,9 @@
-package me.stalexgaming.noname;
+package me.stalexgaming.colordrops;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import me.stalexgaming.noname.commands.Commands;
-import me.stalexgaming.noname.listeners.Listeners;
+import me.stalexgaming.colordrops.commands.Commands;
+import me.stalexgaming.colordrops.listeners.Listeners;
+import me.stalexgaming.colordrops.managers.GameManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -22,6 +23,8 @@ public class Main extends JavaPlugin {
 
     public int minimumPlayers;
 
+    GameManager gameManager = GameManager.getInstance();
+
     public void onEnable(){
         instance = this;
 
@@ -34,6 +37,8 @@ public class Main extends JavaPlugin {
         saveDefaultConfig();
 
         minimumPlayers = getConfig().getInt("minimum-players");
+
+        gameManager.countdown();
     }
 
     public WorldEditPlugin getWorldEditInstance(){
@@ -53,7 +58,7 @@ public class Main extends JavaPlugin {
     }
 
     private void registerCommands(){
-        this.getCommand("noname").setExecutor(new Commands(this));
+        this.getCommand("colordrops").setExecutor(new Commands(this));
     }
 
     private void registerListeners(){

@@ -1,5 +1,5 @@
-name: NoName
-main: me.stalexgaming.noname.Main
+name: ColorDrops
+main: me.stalexgaming.colordrops.Main
 version: 1.0.1
 description: This game is exclusively made for MineJoy
 commands:
