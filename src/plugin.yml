@@ -1,9 +1,9 @@
 name: ColorDrops
 main: me.stalexgaming.colordrops.Main
 version: 1.0.1
-description: This game is exclusively made for MineJoy
+description: ColorDrops is exclusively made for MineJoy
 commands:
-   noname:
-      description: Core command for NoName
+   colordrops:
+      description: Core command for ColorDrops
 
 depend: [WorldEdit]

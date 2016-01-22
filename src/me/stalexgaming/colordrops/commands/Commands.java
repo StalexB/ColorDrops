@@ -3,6 +3,7 @@ package me.stalexgaming.colordrops.commands;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import me.stalexgaming.colordrops.Main;
+import me.stalexgaming.colordrops.managers.ArenaManager;
 import me.stalexgaming.colordrops.utils.Color;
 import me.stalexgaming.colordrops.utils.LocationUtil;
 import org.bukkit.Location;
@@ -30,7 +31,8 @@ public class Commands implements CommandExecutor {
         this.plugin = main;
     }
 
-    public LocationUtil locationUtil = LocationUtil.getInstance();
+    LocationUtil locationUtil = LocationUtil.getInstance();
+    ArenaManager arenaManager = ArenaManager.getInstance();
 
     public boolean onCommand(CommandSender sender, Command cmd, String CommandLabel, String[] args){
         if(!(sender instanceof Player)) return true;
@@ -78,6 +80,14 @@ public class Commands implements CommandExecutor {
                         return true;
                     } else {
                         p.sendMessage(Color.p("&cYou need a selection in order to set an area!"));
+                        return true;
+                    }
+                } else if(args[0].equalsIgnoreCase("check")){
+                    if(arenaManager.isArenaReady()){
+                        p.sendMessage(Color.p("&7This server is &aready &7for use."));
+                        return true;
+                    } else {
+                        p.sendMessage(Color.p("&7This server is &cnot ready &7for use."));
                         return true;
                     }
                 }
