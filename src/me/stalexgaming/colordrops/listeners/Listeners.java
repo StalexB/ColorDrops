@@ -5,6 +5,9 @@ import me.stalexgaming.colordrops.enums.Area;
 import me.stalexgaming.colordrops.enums.GameState;
 import me.stalexgaming.colordrops.enums.Team;
 import me.stalexgaming.colordrops.events.AreaWalkEvent;
+import me.stalexgaming.colordrops.managers.GameManager;
+import me.stalexgaming.colordrops.managers.NexusManager;
+import me.stalexgaming.colordrops.managers.TeamManager;
 import me.stalexgaming.colordrops.player.SPlayer;
 import me.stalexgaming.colordrops.utils.Color;
 import me.stalexgaming.colordrops.utils.LocationUtil;
@@ -17,11 +20,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.List;
 
@@ -40,14 +45,40 @@ public class Listeners implements Listener {
     }
 
     LocationUtil locationUtil = LocationUtil.getInstance();
+    TeamManager teamManager = TeamManager.getInstance();
+    NexusManager nexusManager = NexusManager.getInstance();
+    GameManager gameManager = GameManager.getInstance();
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e){
+        FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
+
         Player p = e.getPlayer();
         SPlayer player = new SPlayer(p);
 
         int blue = Team.BLUE.getPlayers().size();
         int red = Team.RED.getPlayers().size();
+
+        p.teleport(locationUtil.deserializeLoc(locationsFile.getString("arena.lobby")));
+
+
+        Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
+        org.bukkit.scoreboard.Team r = sb.registerNewTeam("red");
+        r.setPrefix(Color.np("&c"));
+        org.bukkit.scoreboard.Team b = sb.registerNewTeam("blue");
+        b.setPrefix(Color.np("&b"));
+        for(Player online : Bukkit.getOnlinePlayers()){
+            Team team = teamManager.getTeam(online);
+            if(team == Team.BLUE){
+                b.addEntry(online.getName());
+            } else {
+                r.addEntry(online.getName());
+            }
+        }
+
+        p.setScoreboard(sb);
+
+        e.setJoinMessage(null);
 
         if(blue <= red){
             player.setTeam(Team.BLUE);
@@ -61,6 +92,8 @@ public class Listeners implements Listener {
         Player p = e.getPlayer();
         SPlayer player = new SPlayer(p);
 
+        e.setQuitMessage(null);
+
         player.removePlayer();
     }
 
@@ -73,14 +106,15 @@ public class Listeners implements Listener {
                     e.getPlayer().teleport(e.getFrom());
                 }
             }
-            if(Main.getInstance().redSpawnArea.contains(e.getTo())){
+            Location loc = new Location(e.getTo().getWorld(), (int) e.getTo().getX(), (int) e.getTo().getY(), (int) e.getTo().getZ());
+            if(Main.getInstance().redSpawnArea.contains(loc)){
                 Bukkit.getPluginManager().callEvent(new AreaWalkEvent(Area.RED_SPAWN, p));
             }
-            if(Main.getInstance().blueSpawnArea.contains(e.getTo())){
+            if(Main.getInstance().blueSpawnArea.contains(loc)){
                 Bukkit.getPluginManager().callEvent(new AreaWalkEvent(Area.BLUE_SPAWN, p));
             }
-            if(Main.getInstance().blockspawnAreas.contains(e.getTo())){
-                Bukkit.getPluginManager().callEvent(new AreaWalkEvent(getArea(e.getTo()), p));
+            if(Main.getInstance().blockspawnAreas.contains(loc)){
+                Bukkit.getPluginManager().callEvent(new AreaWalkEvent(getArea(loc), p));
             }
         }
     }
@@ -108,21 +142,45 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
+    public void onPlayerDamage(EntityDamageEvent e){
+        if(e.getEntity() instanceof Player){
+            if(GameState.getState() == GameState.ENDING || GameState.getState() == GameState.LOBBY){
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
     public void onAreaWalk(AreaWalkEvent e){
-        Player p = e.getPlayer();
-        Area a = e.getArea();
+        if(GameState.getState() != GameState.ENDING) {
+            Player p = e.getPlayer();
+            Area a = e.getArea();
 
-        if(a != null){
-
+            if (a != null) {
+                if(e.isBlockSpawn()){
+                    int block = nexusManager.getColor(a);
+                    gameManager.setCarrying(p, block);
+                } else {
+                    Team spawn = getTeam(a);
+                    int carrying = gameManager.getCarrying(p);
+                    if(spawn == teamManager.getTeam(p)){
+                        if(carrying == nexusManager.getCurrentNexusColor()){
+                            p.sendMessage("Capture");
+                            gameManager.addPoint(spawn);
+                            gameManager.setCarrying(p, 0);
+                        }
+                    }
+                }
+            }
         }
     }
 
     public Area getArea(Location loc){
         FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
-        List<Area> areas = Area.getAreas();
+        List<Area> areas = Area.getBlockSpawns();
         int i = 0;
-        for(int t = 1; i < 9; t++){
-            String[] data = locationsFile.getString("arena.blockspawnareas." + i).split(" ");
+        for(int t = 1; t < 9; t++){
+            String[] data = locationsFile.getString("arena.blockspawnareas." + t).split(" ");
 
             Location minimum = locationUtil.deserializeLoc(data[0]);
             Location maximum = locationUtil.deserializeLoc(data[1]);
@@ -131,7 +189,7 @@ public class Listeners implements Listener {
                     for (double z = minimum.getZ(); z <= maximum.getZ(); z++) {
                         Location location = new Location(minimum.getWorld(), x, y, z);
                         if(location.equals(loc)){
-                            return areas.get(i + 2);
+                            return areas.get(i);
                         }
                     }
                 }
@@ -139,6 +197,14 @@ public class Listeners implements Listener {
             i++;
         }
         return null;
+    }
+
+    private Team getTeam(Area a){
+        if(a == Area.RED_SPAWN){
+            return Team.RED;
+        } else {
+            return Team.BLUE;
+        }
     }
 
 }

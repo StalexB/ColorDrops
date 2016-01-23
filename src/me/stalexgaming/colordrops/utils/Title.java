@@ -1,5 +1,7 @@
 package me.stalexgaming.colordrops.utils;
 
+import me.stalexgaming.colordrops.enums.Team;
+import me.stalexgaming.colordrops.managers.TeamManager;
 import net.minecraft.server.v1_8_R3.IChatBaseComponent;
 import net.minecraft.server.v1_8_R3.PacketPlayOutTitle;
 import org.bukkit.Bukkit;
@@ -19,6 +21,8 @@ public class Title {
     private int fadeIn;
     private int stay;
     private int fadeOut;
+
+    TeamManager teamManager = TeamManager.getInstance();
 
     public Title(String title, String subtitle, int fadeIn, int stay, int fadeOut){
         this.title = title;
@@ -48,6 +52,15 @@ public class Title {
             if(subtitle != null){
                 packet = new PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, IChatBaseComponent.ChatSerializer.a("{\"text\":\"" + subtitle + "\"}"));
                 ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+            }
+        }
+    }
+
+    public void sendToTeam(Team team){
+        for(String s : teamManager.getTeamPlayers(team)){
+            if(Bukkit.getPlayer(s) != null){
+                Player t = Bukkit.getPlayer(s);
+                sendToPlayer(t);
             }
         }
     }

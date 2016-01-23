@@ -28,4 +28,19 @@ public enum Area {
         return areas;
     }
 
+    public static List<Area> getBlockSpawns(){
+        List<Area> areas = new ArrayList<>();
+
+        areas.add(BLOCKSPAWN_1);
+        areas.add(BLOCKSPAWN_2);
+        areas.add(BLOCKSPAWN_3);
+        areas.add(BLOCKSPAWN_4);
+        areas.add(BLOCKSPAWN_5);
+        areas.add(BLOCKSPAWN_6);
+        areas.add(BLOCKSPAWN_7);
+        areas.add(BLOCKSPAWN_8);
+
+        return areas;
+    }
+
 }

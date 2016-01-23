@@ -48,7 +48,6 @@ public class Main extends JavaPlugin {
 
         registerCommands();
         registerListeners();
-        initializeBlocks();
 
         getConfig().options().copyDefaults(true);
         saveDefaultConfig();
@@ -85,23 +84,20 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new Listeners(this), this);
     }
 
-    private void initializeBlocks() {
+    public void initializeBlocks() {
         if (arenaManager.isArenaReady()) {
             FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
 
             for (String s : locationsFile.getStringList("arena.nexus")) {
-                String[] data = s.split(":");
-                for (String string : data) {
-                    String[] location = string.split(" ");
-                    Location minimum = locationUtil.deserializeLoc(location[0]);
-                    Location maximum = locationUtil.deserializeLoc(location[1]);
-                    for (double x = minimum.getX(); x <= maximum.getX(); x++) {
-                        for (double y = minimum.getY(); y <= maximum.getY(); y++) {
-                            for (double z = minimum.getZ(); z <= maximum.getZ(); z++) {
-                                Location loc = new Location(minimum.getWorld(), x, y, z);
-                                if (!nexus.contains(loc)) {
-                                    nexus.add(loc);
-                                }
+                String[] location = s.split(" ");
+                Location minimum = locationUtil.deserializeLoc(location[0]);
+                Location maximum = locationUtil.deserializeLoc(location[1]);
+                for (double x = minimum.getX(); x <= maximum.getX(); x++) {
+                    for (double y = minimum.getY(); y <= maximum.getY(); y++) {
+                        for (double z = minimum.getZ(); z <= maximum.getZ(); z++) {
+                            Location loc = new Location(minimum.getWorld(), x, y, z);
+                            if (!nexus.contains(loc)) {
+                                nexus.add(loc);
                             }
                         }
                     }
@@ -125,7 +121,7 @@ public class Main extends JavaPlugin {
                 }
             }
 
-            String[] blue = locationsFile.getString("arena.spawns.blue").split(" ");
+            String[] blue = locationsFile.getString("arena.spawnarea.blue").split(" ");
 
             Location minimum = locationUtil.deserializeLoc(blue[0]);
             Location maximum = locationUtil.deserializeLoc(blue[1]);
@@ -140,10 +136,10 @@ public class Main extends JavaPlugin {
                 }
             }
 
-            String[] red = locationsFile.getString("arena.spawns.red").split(" ");
+            String[] red = locationsFile.getString("arena.spawnarea.red").split(" ");
 
-            Location min = locationUtil.deserializeLoc(blue[0]);
-            Location max = locationUtil.deserializeLoc(blue[1]);
+            Location min = locationUtil.deserializeLoc(red[0]);
+            Location max = locationUtil.deserializeLoc(red[1]);
             for (double x = min.getX(); x <= max.getX(); x++) {
                 for (double y = min.getY(); y <= max.getY(); y++) {
                     for (double z = min.getZ(); z <= max.getZ(); z++) {
@@ -154,6 +150,8 @@ public class Main extends JavaPlugin {
                     }
                 }
             }
+
+            System.out.println("nexus: " + nexus.size() + " blockspawnareas: " + blockspawnAreas.size() + " redspawn:" + redSpawnArea.size() + " bluespawn: " + blueSpawnArea.size());
         }
     }
 

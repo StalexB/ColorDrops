@@ -1,13 +1,18 @@
 package me.stalexgaming.colordrops.managers;
 
 import me.stalexgaming.colordrops.Main;
+import me.stalexgaming.colordrops.enums.Area;
 import me.stalexgaming.colordrops.utils.Color;
+import me.stalexgaming.colordrops.utils.LocationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -23,11 +28,13 @@ public class NexusManager {
         return instance;
     }
 
-    public void startNexus(){
-        for(Location b : Main.getInstance().nexus){
-            b.getBlock().setTypeIdAndData(159, (byte) 3, true);
-        }
+    LocationUtil locationUtil = LocationUtil.getInstance();
 
+    private HashMap<Area, Integer> blockSpawns = new HashMap<>();
+    private int currentNexusColor = 10;
+
+    public void startNexus(){
+        FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
         new BukkitRunnable(){
             int i = 0;
             @Override
@@ -36,11 +43,35 @@ public class NexusManager {
                     int color = getRandomColor(0);
 
                     for(Location b : Main.getInstance().nexus){
-                        b.getBlock().setTypeIdAndData(159, (byte) color, true);
+                        b.getWorld().getBlockAt(b).setTypeIdAndData(159, (byte) color, false);
+                    }
+                    currentNexusColor = color;
+
+                    Area a = getRandomBlockSpawn();
+                    int areaId = 0;
+
+                    int t = 1;
+                    for(Location loc : getBlockSpawnLocations()){
+                        Area area = getBlockSpawnArea(t);
+                        if(area != a){
+                            int random = getRandomColor(currentNexusColor);
+                            loc.getBlock().setTypeIdAndData(159, (byte) random, false);
+                            blockSpawns.put(area, random);
+                            t++;
+                        } else {
+                            areaId = t;
+                            t++;
+                        }
                     }
 
+                    Location loc = getBlockSpawnLocations().get(areaId-1);
+                    loc.getBlock().setTypeIdAndData(159, (byte) currentNexusColor, false);
+                    blockSpawns.put(a, currentNexusColor);
+
                     Bukkit.broadcastMessage(Color.np("&6The Nexus has changed to a different color block!"));
+                    i++;
                 }
+                i++;
             }
         }.runTaskTimer(Main.getInstance(), 0, 20);
     }
@@ -54,10 +85,62 @@ public class NexusManager {
         colors.add(8);
 
         int random = r.nextInt(3);
-        while(colors.get(random) == current){
+        while(colors.get(random) == null || colors.get(random) == current){
             random = r.nextInt(3);
         }
         return colors.get(random);
     }
 
+    public List<Location> getBlockSpawnLocations(){
+        FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
+        List<Location> locs = new ArrayList<>();
+        int i = 1;
+        for(Area a : Area.getBlockSpawns()){
+            locs.add(locationUtil.deserializeLoc(locationsFile.getString("arena.blockspawns." + i)));
+            i++;
+        }
+
+        return locs;
+    }
+
+    public Area getBlockSpawnArea(int i){
+        switch(i){
+            case 1:
+                return Area.BLOCKSPAWN_1;
+            case 2:
+                return Area.BLOCKSPAWN_2;
+            case 3:
+                return Area.BLOCKSPAWN_3;
+            case 4:
+                return Area.BLOCKSPAWN_4;
+            case 5:
+                return Area.BLOCKSPAWN_5;
+            case 6:
+                return Area.BLOCKSPAWN_6;
+            case 7:
+                return Area.BLOCKSPAWN_7;
+            case 8:
+                return Area.BLOCKSPAWN_8;
+            default:
+                return null;
+        }
+    }
+
+    public Area getRandomBlockSpawn(){
+        Random r = new Random();
+        int random = r.nextInt(8)-1;
+        if(random < 0){
+            return Area.getBlockSpawns().get(0);
+        } else {
+            return Area.getBlockSpawns().get(random);
+        }
+    }
+
+    public int getColor(Area a){
+        return blockSpawns.get(a);
+    }
+
+    public int getCurrentNexusColor(){
+        return currentNexusColor;
+    }
 }

@@ -1,5 +1,6 @@
 package me.stalexgaming.colordrops.utils;
 
+import me.stalexgaming.colordrops.Main;
 import org.bukkit.ChatColor;
 
 /**
@@ -8,7 +9,7 @@ import org.bukkit.ChatColor;
  */
 public class Color {
 
-    private static String prefix = "";
+    private static String prefix = Main.getInstance().getConfig().getString("prefix");
 
     public static String np(String s){
         return ChatColor.translateAlternateColorCodes('&', s);

@@ -6,7 +6,7 @@ package me.stalexgaming.colordrops.enums;
  */
 public enum GameState {
 
-    LOBBY, INGAME, RESTARTING;
+    LOBBY, INGAME, ENDING;
 
     private static GameState gameState;
 
@@ -17,7 +17,7 @@ public enum GameState {
         return LOBBY;
     }
 
-    public void setState(GameState state){
+    public static void setState(GameState state){
         gameState = state;
     }
 

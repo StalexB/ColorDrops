@@ -37,4 +37,8 @@ public class AreaWalkEvent extends Event {
         return p;
     }
 
+    public boolean isBlockSpawn(){
+        return Area.getBlockSpawns().contains(a);
+    }
+
 }
