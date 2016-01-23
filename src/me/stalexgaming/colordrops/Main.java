@@ -30,6 +30,7 @@ public class Main extends JavaPlugin {
     public File locations = null;
 
     public int minimumPlayers;
+    public static boolean isGameWon = false;
 
     public List<Location> nexus = new ArrayList<>();
     public List<Location> blockspawnAreas = new ArrayList<>();

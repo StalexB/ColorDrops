@@ -60,6 +60,7 @@ public class Listeners implements Listener {
         int red = Team.RED.getPlayers().size();
 
         p.teleport(locationUtil.deserializeLoc(locationsFile.getString("arena.lobby")));
+        gameManager.setCarrying(p, 0);
 
 
         Scoreboard sb = Bukkit.getScoreboardManager().getNewScoreboard();
@@ -100,27 +101,28 @@ public class Listeners implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
+        Location loc = new Location(e.getTo().getWorld(), (int) e.getTo().getX(), (int) e.getTo().getY(), (int) e.getTo().getZ());
+        if(Main.getInstance().redSpawnArea.contains(loc)){
+            Bukkit.getPluginManager().callEvent(new AreaWalkEvent(Area.RED_SPAWN, p));
+        }
+        if(Main.getInstance().blueSpawnArea.contains(loc)){
+            Bukkit.getPluginManager().callEvent(new AreaWalkEvent(Area.BLUE_SPAWN, p));
+        }
+        if(Main.getInstance().blockspawnAreas.contains(loc)){
+            Bukkit.getPluginManager().callEvent(new AreaWalkEvent(getArea(loc), p));
+        }
         if ((int) e.getFrom().getX() != (int) e.getTo().getX() || (int) e.getFrom().getZ() != (int) e.getTo().getZ()) {
             if (!released) {
                 if (GameState.getState() == GameState.INGAME) {
                     e.getPlayer().teleport(e.getFrom());
                 }
             }
-            Location loc = new Location(e.getTo().getWorld(), (int) e.getTo().getX(), (int) e.getTo().getY(), (int) e.getTo().getZ());
-            if(Main.getInstance().redSpawnArea.contains(loc)){
-                Bukkit.getPluginManager().callEvent(new AreaWalkEvent(Area.RED_SPAWN, p));
-            }
-            if(Main.getInstance().blueSpawnArea.contains(loc)){
-                Bukkit.getPluginManager().callEvent(new AreaWalkEvent(Area.BLUE_SPAWN, p));
-            }
-            if(Main.getInstance().blockspawnAreas.contains(loc)){
-                Bukkit.getPluginManager().callEvent(new AreaWalkEvent(getArea(loc), p));
-            }
         }
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e){
+        FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
         Player p = e.getEntity();
         p.setHealth(20);
         p.setFoodLevel(20);
@@ -134,8 +136,14 @@ public class Listeners implements Listener {
                     Title title = new Title(Color.np("&6Respawning in &e" + String.valueOf(i)), "", 5, 10, 5);
                     title.sendToPlayer(p);
                 } else {
-                    //TODO: add respawn loc
+                    this.cancel();
                     p.setGameMode(GameMode.SURVIVAL);
+
+                    if(teamManager.getTeam(p) == Team.BLUE){
+                        p.teleport(locationUtil.deserializeLoc(locationsFile.getString("arena.spawns.blue.1")));
+                    } else if(teamManager.getTeam(p) == Team.RED){
+                        p.teleport(locationUtil.deserializeLoc(locationsFile.getString("arena.spawns.red.1")));
+                    }
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 20);
@@ -165,9 +173,10 @@ public class Listeners implements Listener {
                     int carrying = gameManager.getCarrying(p);
                     if(spawn == teamManager.getTeam(p)){
                         if(carrying == nexusManager.getCurrentNexusColor()){
-                            p.sendMessage("Capture");
+                            Bukkit.broadcastMessage(Color.np(spawn.getColor() + p.getName() + " &6has secured the color!"));
                             gameManager.addPoint(spawn);
                             gameManager.setCarrying(p, 0);
+                            nexusManager.generateNewNexus();
                         }
                     }
                 }

@@ -8,6 +8,7 @@ import me.stalexgaming.colordrops.utils.Color;
 import me.stalexgaming.colordrops.utils.LocationUtil;
 import me.stalexgaming.colordrops.utils.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -27,9 +28,9 @@ public class GameManager {
         return instance;
     }
 
-    private HashMap<String, Integer> carrying = new HashMap<>();
+    private static HashMap<String, Integer> carrying = new HashMap<>();
 
-    public int minecart = 0;
+    private static int minecart = 0;
 
     ArenaManager arenaManager = ArenaManager.getInstance();
     TeamManager teamManager = TeamManager.getInstance();
@@ -67,6 +68,15 @@ public class GameManager {
     public void startGame(){
         FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
         GameState.setState(GameState.INGAME);
+        for(Location loc : Main.getInstance().nexus){
+            loc.getBlock().setTypeIdAndData(159, (byte) 8, false);
+        }
+
+        for(int i = 1; i < 9; i++){
+            Location loc = locationUtil.deserializeLoc(locationsFile.getString("arena.blockspawns." + i));
+            loc.getBlock().setTypeIdAndData(159, (byte) 8, false);
+        }
+
         for(Team team : teamManager.getTeams()){
             int i = 1;
             for(String s : teamManager.getTeamPlayers(team)){
@@ -128,21 +138,27 @@ public class GameManager {
             Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);
             win.sendToTeam(Team.BLUE);
             Title lose = new Title(Color.np("&cYou lost!"), "", 15, 40, 15);
-            win.sendToTeam(Team.RED);
+            lose.sendToTeam(Team.RED);
 
             Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &b&lBLUE&6!"));
+
+            Main.isGameWon = true;
+            GameState.setState(GameState.ENDING);
         } else if(minecart >= 4){
             GameState.setState(GameState.ENDING);
             Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);
             win.sendToTeam(Team.RED);
             Title lose = new Title(Color.np("&cYou lost!"), "", 15, 40, 15);
-            win.sendToTeam(Team.BLUE);
+            lose.sendToTeam(Team.BLUE);
 
             Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &c&lRED&6!"));
+
+            Main.isGameWon = true;
+            GameState.setState(GameState.ENDING);
         }
     }
 
-    public int getMinecart(){
+    public static int getMinecart(){
         return minecart;
     }
 
@@ -150,11 +166,17 @@ public class GameManager {
         carrying.put(p.getName(), i);
     }
 
-    public int getCarrying(Player p){
-        if(carrying.containsKey(p.getName())){
-            return carrying.get(p.getName());
+    public static Integer getCarrying(Player p){
+        try {
+            if (carrying.get(p.getName()) != null) {
+                int color = carrying.get(p.getName());
+                return color;
+            } else {
+                return 0;
+            }
+        } catch (Exception ex){
+            return 0;
         }
-        return 0;
     }
 
 }

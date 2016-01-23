@@ -4,6 +4,7 @@ import me.stalexgaming.colordrops.Main;
 import me.stalexgaming.colordrops.enums.Area;
 import me.stalexgaming.colordrops.utils.Color;
 import me.stalexgaming.colordrops.utils.LocationUtil;
+import me.stalexgaming.colordrops.utils.ScoreboardUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -29,9 +30,12 @@ public class NexusManager {
     }
 
     LocationUtil locationUtil = LocationUtil.getInstance();
+    ScoreboardUtil scoreboardUtil = ScoreboardUtil.getInstance();
 
     private HashMap<Area, Integer> blockSpawns = new HashMap<>();
-    private int currentNexusColor = 10;
+    private int currentNexusColor = 14;
+
+    private boolean generateNewNexus = false;
 
     public void startNexus(){
         FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
@@ -39,41 +43,53 @@ public class NexusManager {
             int i = 0;
             @Override
             public void run() {
-                if(i % 30 == 0){
-                    int color = getRandomColor(0);
-
-                    for(Location b : Main.getInstance().nexus){
-                        b.getWorld().getBlockAt(b).setTypeIdAndData(159, (byte) color, false);
+                if(!Main.isGameWon) {
+                    if (generateNewNexus) {
+                        i = 120;
+                        generateNewNexus = false;
                     }
-                    currentNexusColor = color;
+                    if (i % 120 == 0) {
+                        int color = getRandomColor(0);
 
-                    Area a = getRandomBlockSpawn();
-                    int areaId = 0;
-
-                    int t = 1;
-                    for(Location loc : getBlockSpawnLocations()){
-                        Area area = getBlockSpawnArea(t);
-                        if(area != a){
-                            int random = getRandomColor(currentNexusColor);
-                            loc.getBlock().setTypeIdAndData(159, (byte) random, false);
-                            blockSpawns.put(area, random);
-                            t++;
-                        } else {
-                            areaId = t;
-                            t++;
+                        for (Location b : Main.getInstance().nexus) {
+                            b.getWorld().getBlockAt(b).setTypeIdAndData(159, (byte) color, false);
                         }
+                        currentNexusColor = color;
+
+                        Area a = getRandomBlockSpawn();
+                        int areaId = 0;
+
+                        int t = 1;
+                        for (Location loc : getBlockSpawnLocations()) {
+                            Area area = getBlockSpawnArea(t);
+                            if (area != a) {
+                                int random = getRandomColor(currentNexusColor);
+                                loc.getBlock().setTypeIdAndData(159, (byte) random, false);
+                                blockSpawns.put(area, random);
+                                t++;
+                            } else {
+                                areaId = t;
+                                t++;
+                            }
+                        }
+
+                        Location loc = getBlockSpawnLocations().get(areaId - 1);
+                        loc.getBlock().setTypeIdAndData(159, (byte) currentNexusColor, false);
+                        blockSpawns.put(a, currentNexusColor);
+
+                        Bukkit.broadcastMessage(Color.np("&6The Nexus has changed its color to " + scoreboardUtil.getColorName(currentNexusColor) + "&6!"));
+                        i++;
                     }
-
-                    Location loc = getBlockSpawnLocations().get(areaId-1);
-                    loc.getBlock().setTypeIdAndData(159, (byte) currentNexusColor, false);
-                    blockSpawns.put(a, currentNexusColor);
-
-                    Bukkit.broadcastMessage(Color.np("&6The Nexus has changed to a different color block!"));
                     i++;
+                } else {
+                    this.cancel();
                 }
-                i++;
             }
-        }.runTaskTimer(Main.getInstance(), 0, 20);
+        }.runTaskTimer(Main.getInstance(), 0, 5);
+    }
+
+    public void generateNewNexus(){
+        generateNewNexus = true;
     }
 
     public int getRandomColor(int current){
@@ -84,9 +100,9 @@ public class NexusManager {
         colors.add(4);
         colors.add(8);
 
-        int random = r.nextInt(3);
-        while(colors.get(random) == null || colors.get(random) == current){
-            random = r.nextInt(3);
+        int random = r.nextInt(4);
+        while(colors.get(random) == current){
+            random = r.nextInt(4);
         }
         return colors.get(random);
     }
