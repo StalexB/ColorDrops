@@ -164,6 +164,23 @@ public class Commands implements CommandExecutor {
                         p.sendMessage(Color.p("&cThe blockspawn ID specified is invalid."));
                         return true;
                     }
+                } else if(args[0].equalsIgnoreCase("setminecart")){
+                    if(args[1].equalsIgnoreCase("x") || args[1].equalsIgnoreCase("z")){
+                        locationsFile.set("arena.minecart", locationUtil.serializeLocation(p.getLocation()));
+                        locationsFile.set("arena.minecartxorz", args[1].toLowerCase());
+
+                        try {
+                            locationsFile.save(Main.getInstance().locations);
+                        } catch (IOException ex){
+                            ex.printStackTrace();
+                            plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving minecart spawn location!");
+                        }
+                        p.sendMessage(Color.p("&7You set the &aminecart &7starting point."));
+                        return true;
+                    } else {
+                        p.sendMessage(Color.p("&cYou must specify either X or Z!"));
+                        return true;
+                    }
                 }
             } else if(args.length == 3){
                 if(args[0].equalsIgnoreCase("setspawn")){

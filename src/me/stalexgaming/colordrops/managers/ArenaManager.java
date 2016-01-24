@@ -22,21 +22,27 @@ public class ArenaManager {
         if(locationsFile.getString("arena.lobby") != null){
             if(locationsFile.getString("arena.spawnarea.blue") != null && locationsFile.getString("arena.spawnarea.red") != null) {
                 if (locationsFile.getString("arena.nexus") != null) {
-                    for (int i = 1; i < 6; i++) {
-                        if (locationsFile.getString("arena.spawns.red." + i) != null) {
-                            continue;
-                        } else {
-                            return false;
+                    if (locationsFile.getString("arena.minecart") != null) {
+                        if(locationsFile.getString("arena.minecartxorz") != null) {
+                            for (int i = 1; i < 6; i++) {
+                                if (locationsFile.getString("arena.spawns.red." + i) != null) {
+                                    continue;
+                                } else {
+                                    return false;
+                                }
+                            }
+                            for (int i = 1; i < 9; i++) {
+                                if (locationsFile.getString("arena.blockspawns." + i) != null && locationsFile.getString("arena.blockspawnareas." + i) != null) {
+                                    continue;
+                                } else {
+                                    return false;
+                                }
+                            }
+                            return true;
                         }
+                        return false;
                     }
-                    for (int i = 1; i < 9; i++) {
-                        if (locationsFile.getString("arena.blockspawns." + i) != null && locationsFile.getString("arena.blockspawnareas." + i) != null) {
-                            continue;
-                        } else {
-                            return false;
-                        }
-                    }
-                    return true;
+                    return false;
                 }
                 return false;
             }

@@ -122,7 +122,7 @@ public class ScoreboardUtil {
                 } else if(i == 4){
                     sb.append("&c+");
                 } else {
-                    sb.append("&7--");
+                    sb.append("&7-");
                 }
             } else {
                 sb.append("&6&l#");

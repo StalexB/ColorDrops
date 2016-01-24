@@ -6,11 +6,13 @@ import me.stalexgaming.colordrops.enums.Team;
 import me.stalexgaming.colordrops.listeners.Listeners;
 import me.stalexgaming.colordrops.utils.Color;
 import me.stalexgaming.colordrops.utils.LocationUtil;
+import me.stalexgaming.colordrops.utils.Minecart;
 import me.stalexgaming.colordrops.utils.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -31,6 +33,8 @@ public class GameManager {
     private static HashMap<String, Integer> carrying = new HashMap<>();
 
     private static int minecart = 0;
+
+    public static Minecart mc;
 
     ArenaManager arenaManager = ArenaManager.getInstance();
     TeamManager teamManager = TeamManager.getInstance();
@@ -76,6 +80,11 @@ public class GameManager {
             Location loc = locationUtil.deserializeLoc(locationsFile.getString("arena.blockspawns." + i));
             loc.getBlock().setTypeIdAndData(159, (byte) 8, false);
         }
+        Location loc = locationUtil.deserializeLoc(locationsFile.getString("arena.minecart"));
+        org.bukkit.entity.Minecart mc = (org.bukkit.entity.Minecart) loc.getWorld().spawnEntity(loc, EntityType.MINECART);
+
+        Minecart minecart = new Minecart(mc, locationsFile.getString("arena.minecartxorz"));
+        this.mc = minecart;
 
         for(Team team : teamManager.getTeams()){
             int i = 1;
@@ -125,9 +134,11 @@ public class GameManager {
     public void addPoint(Team team){
         if(team == Team.BLUE){
             minecart--;
+            mc.moveMineCart(Team.BLUE);
             checkWin();
         } else if(team == Team.RED){
             minecart++;
+            mc.moveMineCart(Team.RED);
             checkWin();
         }
     }
@@ -143,6 +154,7 @@ public class GameManager {
             Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &b&lBLUE&6!"));
 
             Main.isGameWon = true;
+            mc.remove();
             GameState.setState(GameState.ENDING);
         } else if(minecart >= 4){
             GameState.setState(GameState.ENDING);
@@ -154,6 +166,7 @@ public class GameManager {
             Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &c&lRED&6!"));
 
             Main.isGameWon = true;
+            mc.remove();
             GameState.setState(GameState.ENDING);
         }
     }
