@@ -83,6 +83,7 @@ public class Main extends JavaPlugin {
         PluginManager pm = Bukkit.getPluginManager();
 
         pm.registerEvents(new Listeners(this), this);
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }
 
     public void initializeBlocks() {

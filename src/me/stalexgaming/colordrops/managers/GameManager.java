@@ -16,6 +16,9 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -154,8 +157,23 @@ public class GameManager {
             Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &b&lBLUE&6!"));
 
             Main.isGameWon = true;
-            mc.remove();
             GameState.setState(GameState.ENDING);
+
+            new BukkitRunnable(){
+                public void run() {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        ByteArrayOutputStream b = new ByteArrayOutputStream();
+                        DataOutputStream out = new DataOutputStream(b);
+                        try {
+                            out.writeUTF("Connect");
+                            out.writeUTF("lobby");
+                        } catch (IOException ex) {}
+                        p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
+                    }
+                    mc.remove();
+                    Bukkit.getServer().shutdown();
+                }
+            }.runTaskLater(Main.getInstance(), 300);
         } else if(minecart >= 4){
             GameState.setState(GameState.ENDING);
             Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);
@@ -166,8 +184,23 @@ public class GameManager {
             Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &c&lRED&6!"));
 
             Main.isGameWon = true;
-            mc.remove();
             GameState.setState(GameState.ENDING);
+
+            new BukkitRunnable(){
+                public void run() {
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        ByteArrayOutputStream b = new ByteArrayOutputStream();
+                        DataOutputStream out = new DataOutputStream(b);
+                        try {
+                            out.writeUTF("Connect");
+                            out.writeUTF("lobby");
+                        } catch (IOException ex) {}
+                        p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
+                    }
+                    mc.remove();
+                    Bukkit.getServer().shutdown();
+                }
+            }.runTaskLater(Main.getInstance(), 300);
         }
     }
 

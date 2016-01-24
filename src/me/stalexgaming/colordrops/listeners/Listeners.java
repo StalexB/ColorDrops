@@ -11,6 +11,7 @@ import me.stalexgaming.colordrops.managers.TeamManager;
 import me.stalexgaming.colordrops.player.SPlayer;
 import me.stalexgaming.colordrops.utils.Color;
 import me.stalexgaming.colordrops.utils.LocationUtil;
+import me.stalexgaming.colordrops.utils.Minecart;
 import me.stalexgaming.colordrops.utils.Title;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -25,8 +26,12 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.vehicle.VehicleCollisionEvent;
+import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
+import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 
