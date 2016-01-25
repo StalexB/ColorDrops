@@ -90,6 +90,21 @@ public class Commands implements CommandExecutor {
                         p.sendMessage(Color.p("&7This server is &cnot ready &7for use."));
                         return true;
                     }
+                } else if(args[0].equalsIgnoreCase("addturret")){
+                    List<String> turrets = getTurrets();
+
+                    turrets.add(locationUtil.serializeLocation(p.getLocation()));
+
+                    locationsFile.set("arena.turrets", turrets);
+
+                    try {
+                        locationsFile.save(Main.getInstance().locations);
+                    } catch (IOException ex){
+                        ex.printStackTrace();
+                        plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving turret location!");
+                    }
+                    p.sendMessage(Color.p("&7You added a &aTurret&7."));
+                    return true;
                 }
             } else if(args.length == 2){
                 if(args[0].equalsIgnoreCase("setblockspawn")){
@@ -261,6 +276,14 @@ public class Commands implements CommandExecutor {
         FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
         if(locationsFile.getString("arena.nexus") != null){
             return locationsFile.getStringList("arena.nexus");
+        }
+        return new ArrayList<>();
+    }
+
+    private List<String> getTurrets(){
+        FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
+        if(locationsFile.getString("arena.turrets") != null){
+            return locationsFile.getStringList("arena.turrets");
         }
         return new ArrayList<>();
     }

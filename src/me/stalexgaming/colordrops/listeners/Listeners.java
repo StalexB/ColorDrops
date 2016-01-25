@@ -5,27 +5,27 @@ import me.stalexgaming.colordrops.enums.Area;
 import me.stalexgaming.colordrops.enums.GameState;
 import me.stalexgaming.colordrops.enums.Team;
 import me.stalexgaming.colordrops.events.AreaWalkEvent;
+import me.stalexgaming.colordrops.events.TurretWalkEvent;
 import me.stalexgaming.colordrops.managers.GameManager;
 import me.stalexgaming.colordrops.managers.NexusManager;
 import me.stalexgaming.colordrops.managers.TeamManager;
 import me.stalexgaming.colordrops.player.SPlayer;
-import me.stalexgaming.colordrops.utils.Color;
-import me.stalexgaming.colordrops.utils.LocationUtil;
-import me.stalexgaming.colordrops.utils.Minecart;
-import me.stalexgaming.colordrops.utils.Title;
+import me.stalexgaming.colordrops.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleCollisionEvent;
 import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
@@ -33,6 +33,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +44,8 @@ import java.util.List;
 public class Listeners implements Listener {
 
     Main plugin;
+
+    private ArrayList<String> stunned = new ArrayList<>();
 
     public static boolean released = false;
 
@@ -116,11 +120,44 @@ public class Listeners implements Listener {
         if(Main.getInstance().blockspawnAreas.contains(loc)){
             Bukkit.getPluginManager().callEvent(new AreaWalkEvent(getArea(loc), p));
         }
+        if ((int) e.getFrom().getX() != (int) e.getTo().getX() || (int) e.getFrom().getZ() != (int) e.getTo().getZ() || (int) e.getFrom().getY() != (int) e.getTo().getY()) {
+            if(getTurret(loc) != null) {
+                Bukkit.getPluginManager().callEvent(new TurretWalkEvent(p, getTurret(loc)));
+            }
+            if(isInTurret(p)){
+                Turret t = getTurret(p);
+                if(t.containsUser()){
+                    e.getPlayer().teleport(e.getFrom());
+                }
+            }
+        }
         if ((int) e.getFrom().getX() != (int) e.getTo().getX() || (int) e.getFrom().getZ() != (int) e.getTo().getZ()) {
-            if (!released) {
+            if (!released || stunned.contains(p.getName())) {
                 if (GameState.getState() == GameState.INGAME) {
                     e.getPlayer().teleport(e.getFrom());
                 }
+            }
+        }
+    }
+
+    public Turret getTurret(Location loc){
+        FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
+        for(Turret t : Main.getInstance().turretsList){
+            if(t.getLocation().equals(loc)){
+                return t;
+            }
+        }
+        return null;
+    }
+
+    @EventHandler
+    public void onSneak(PlayerToggleSneakEvent e){
+        Player p = e.getPlayer();
+        if(isInTurret(p)){
+            Turret t = getTurret(p);
+            if(t.containsUser()){
+                t.setUser(null);
+                p.teleport(p.getLocation().add(1, 1, 0));
             }
         }
     }
@@ -189,6 +226,61 @@ public class Listeners implements Listener {
         }
     }
 
+    @EventHandler
+    public void onTurretFire(PlayerInteractEvent e){
+        if(isInTurret(e.getPlayer())){
+            Player shooter = e.getPlayer();
+            Turret t = getTurret(shooter);
+
+            t.shoot();
+        }
+    }
+
+    @EventHandler
+    public void onHit(EntityDamageByEntityEvent e){
+        if(e.getEntity() instanceof Player) {
+            Player p = (Player) e.getEntity();
+            if (e.getDamager() instanceof Snowball) {
+                Snowball s = (Snowball) e.getDamager();
+                Player shooter = (Player) s.getShooter();
+                if (teamManager.getTeam(p) != teamManager.getTeam((Player)s.getShooter())) {
+                    if (s.getCustomName() != null) {
+                        if (s.getCustomName().equalsIgnoreCase("stun")) {
+                            if (!stunned.contains(p.getName())) {
+                                stunned.add(p.getName());
+                                p.playSound(p.getLocation(), Sound.FIREWORK_TWINKLE2, 3F, 1F);
+                                shooter.playSound(shooter.getLocation(), Sound.SUCCESSFUL_HIT, 3F, 1F);
+                                p.sendMessage(Color.np("&cYou got hit by a stun! You cannot move for 2 seconds!"));
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        stunned.remove(p.getName());
+                                    }
+                                }.runTaskLater(Main.getInstance(), 40);
+                            } else {
+                                shooter.sendMessage(Color.np("&cThat player is already stunned!"));
+                            }
+                        }
+                    }
+                } else {
+                    shooter.sendMessage(Color.np("&cYou cannot stun team members!"));
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onTurretWalk(TurretWalkEvent e){
+        if(GameState.getState() == GameState.INGAME) {
+            if (!e.isOccupied()) {
+                e.getTurret().setUser(e.getPlayer());
+                e.getPlayer().sendMessage(Color.np("&aYou entered a turret. To leave, press shift."));
+            } else {
+                e.getPlayer().sendMessage(Color.np("&7That turret is already occupied!"));
+            }
+        }
+    }
+
     public Area getArea(Location loc){
         FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
         List<Area> areas = Area.getBlockSpawns();
@@ -219,6 +311,24 @@ public class Listeners implements Listener {
         } else {
             return Team.BLUE;
         }
+    }
+
+    private boolean isInTurret(Player p){
+        for(Turret t : Main.getInstance().turretsList){
+            if(t.getUser() == p){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Turret getTurret(Player p){
+        for(Turret t : Main.getInstance().turretsList){
+            if(t.getUser() == p){
+                return t;
+            }
+        }
+        return null;
     }
 
 }

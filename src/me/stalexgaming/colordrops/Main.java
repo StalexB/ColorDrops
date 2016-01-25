@@ -7,6 +7,7 @@ import me.stalexgaming.colordrops.managers.ArenaManager;
 import me.stalexgaming.colordrops.managers.GameManager;
 import me.stalexgaming.colordrops.utils.LocationUtil;
 import me.stalexgaming.colordrops.utils.ScoreboardUtil;
+import me.stalexgaming.colordrops.utils.Turret;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -32,10 +33,13 @@ public class Main extends JavaPlugin {
     public int minimumPlayers;
     public static boolean isGameWon = false;
 
+    public List<Turret> turretsList = new ArrayList<>();
+
     public List<Location> nexus = new ArrayList<>();
     public List<Location> blockspawnAreas = new ArrayList<>();
     public List<Location> redSpawnArea = new ArrayList<>();
     public List<Location> blueSpawnArea = new ArrayList<>();
+    public List<Location> turrets = new ArrayList<>();
 
     GameManager gameManager = GameManager.getInstance();
     ScoreboardUtil scoreboardUtil = ScoreboardUtil.getInstance();
@@ -106,7 +110,7 @@ public class Main extends JavaPlugin {
                 }
             }
 
-            for(int i = 1; i < 9; i++){
+            for (int i = 1; i < 9; i++) {
                 String[] data = locationsFile.getString("arena.blockspawnareas." + i).split(" ");
 
                 Location minimum = locationUtil.deserializeLoc(data[0]);
@@ -153,7 +157,24 @@ public class Main extends JavaPlugin {
                 }
             }
 
-            System.out.println("nexus: " + nexus.size() + " blockspawnareas: " + blockspawnAreas.size() + " redspawn:" + redSpawnArea.size() + " bluespawn: " + blueSpawnArea.size());
+            for (String s : locationsFile.getStringList("arena.turrets")) {
+                Location loc = locationUtil.deserializeLoc(s);
+                Location locFinal = new Location(loc.getWorld(), (int) loc.getX(), (int) loc.getY(), (int) loc.getZ());
+                if (!turrets.contains(locFinal)) {
+                    turrets.add(locFinal);
+                }
+            }
+
+            initializeTurrets();
+        }
+    }
+
+    private void initializeTurrets(){
+        if(arenaManager.isArenaReady()) {
+            for(Location loc : turrets){
+                Turret t = new Turret(loc, null);
+                turretsList.add(t);
+            }
         }
     }
 
