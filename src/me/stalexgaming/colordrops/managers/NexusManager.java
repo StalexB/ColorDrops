@@ -2,14 +2,17 @@ package me.stalexgaming.colordrops.managers;
 
 import me.stalexgaming.colordrops.Main;
 import me.stalexgaming.colordrops.enums.Area;
+import me.stalexgaming.colordrops.listeners.Listeners;
 import me.stalexgaming.colordrops.utils.Color;
 import me.stalexgaming.colordrops.utils.LocationUtil;
 import me.stalexgaming.colordrops.utils.ScoreboardUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -31,9 +34,13 @@ public class NexusManager {
 
     LocationUtil locationUtil = LocationUtil.getInstance();
     ScoreboardUtil scoreboardUtil = ScoreboardUtil.getInstance();
+    Listeners listeners = new Listeners(Main.getInstance());
+    GameManager gameManager = GameManager.getInstance();
 
     private HashMap<Area, Integer> blockSpawns = new HashMap<>();
+    private static int timer = 0;
     private int currentNexusColor = 14;
+    private Area neededArea;
 
     private boolean generateNewNexus = false;
 
@@ -46,17 +53,19 @@ public class NexusManager {
                 if(!Main.isGameWon) {
                     if (generateNewNexus) {
                         i = 120;
-                        generateNewNexus = false;
                     }
                     if (i % 120 == 0) {
-                        int color = getRandomColor(0);
+                        String[] data = Listeners.neededBlockMaterial.split(";");
+                        Listeners.getNeededBlockLocation().getBlock().setTypeIdAndData(Integer.valueOf(data[0]), Byte.valueOf(data[1]), false);
 
+                        int color = getRandomColor(0);
                         for (Location b : Main.getInstance().nexus) {
                             b.getWorld().getBlockAt(b).setTypeIdAndData(159, (byte) color, false);
                         }
                         currentNexusColor = color;
 
                         Area a = getRandomBlockSpawn();
+                        neededArea = a;
                         int areaId = 0;
 
                         int t = 1;
@@ -73,19 +82,45 @@ public class NexusManager {
                             }
                         }
 
+                        for(Player p : Bukkit.getOnlinePlayers()){
+                            GameManager.setCarrying(p, 0);
+                        }
+
                         Location loc = getBlockSpawnLocations().get(areaId - 1);
                         loc.getBlock().setTypeIdAndData(159, (byte) currentNexusColor, false);
                         blockSpawns.put(a, currentNexusColor);
 
-                        Bukkit.broadcastMessage(Color.np("&6The Nexus has changed its color to " + scoreboardUtil.getColorName(currentNexusColor) + "&6!"));
+                        if(!generateNewNexus) { Bukkit.broadcastMessage(Color.np("&6The Nexus has changed its color!")); }
+                        if(generateNewNexus) { Bukkit.broadcastMessage(Color.np("&6The Nexus suddenly changed its color!")); }
                         i++;
+                        if(timer % 4 == 0) {
+                            timer = (i % 120)/4;
+                        }
+                        generateNewNexus = false;
+                        Listeners.isPickedUp = false;
+                        timer = 0;
                     }
                     i++;
+                    if(timer % 4 == 0) {
+                        timer = (i / 4);
+                    }
+                    generateNewNexus = false;
                 } else {
                     this.cancel();
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 5);
+    }
+
+    public static int getTimer(){
+        return timer;
+    }
+
+    public Area getNeededBlockArea(){
+        if(neededArea != null){
+            return neededArea;
+        }
+        return null;
     }
 
     public void generateNewNexus(){

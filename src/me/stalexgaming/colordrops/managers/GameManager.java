@@ -48,7 +48,7 @@ public class GameManager {
         if(arenaManager.isArenaReady()) {
             int minimumPlayers = Main.getInstance().minimumPlayers;
             new BukkitRunnable() {
-                int counter = 10;
+                int counter = 45;
 
                 public void run() {
                     if (Bukkit.getOnlinePlayers().size() >= minimumPlayers) {
@@ -65,7 +65,7 @@ public class GameManager {
                             this.cancel();
                         }
                     } else {
-                        counter = 10;
+                        counter = 45;
                     }
                 }
             }.runTaskTimer(Main.getInstance(), 0, 20);
@@ -208,7 +208,7 @@ public class GameManager {
         return minecart;
     }
 
-    public void setCarrying(Player p, int i){
+    public static void setCarrying(Player p, int i){
         carrying.put(p.getName(), i);
     }
 

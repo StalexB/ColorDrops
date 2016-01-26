@@ -1,6 +1,7 @@
 package me.stalexgaming.colordrops.enums;
 
 import me.stalexgaming.colordrops.managers.TeamManager;
+import me.stalexgaming.colordrops.utils.Color;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -40,5 +41,15 @@ public enum Team {
 
     public void addPlayer(Player p){
         teamManager.setTeam(p, this);
+    }
+
+    public String getTeamName(){
+        if(this == RED){
+            return Color.np("&c&lRED");
+        } else if(this == BLUE){
+            return Color.np("&b&lBLUE");
+        } else {
+            return null;
+        }
     }
 }

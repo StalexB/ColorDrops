@@ -5,6 +5,7 @@ import me.stalexgaming.colordrops.enums.GameState;
 import me.stalexgaming.colordrops.enums.Team;
 import me.stalexgaming.colordrops.managers.ArenaManager;
 import me.stalexgaming.colordrops.managers.GameManager;
+import me.stalexgaming.colordrops.managers.NexusManager;
 import me.stalexgaming.colordrops.managers.TeamManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -30,7 +31,7 @@ public class ScoreboardUtil {
 
     ArenaManager arenaManager = ArenaManager.getInstance();
     TeamManager teamManager = TeamManager.getInstance();
-    GameManager gameManager = GameManager.getInstance();
+    NexusManager nexusManager = NexusManager.getInstance();
 
     public void setScoreboards(){
         if(arenaManager.isArenaReady()) {
@@ -141,6 +142,8 @@ public class ScoreboardUtil {
         lines.add(Color.np(getColorName(color)));
         lines.add(Color.np("&6Minecart:"));
         lines.add(Color.np(getMineCartStatus()));
+        lines.add("  ");
+        lines.add(Color.np("&6Nexus time: &e" + NexusManager.getTimer()));
 
         return lines;
     }
@@ -148,7 +151,7 @@ public class ScoreboardUtil {
     public String getColorName(int color){
         switch(color){
             case 0:
-                return "&fWhite";
+                return "&f-";
             case 1:
                 return "&6Orange";
             case 2:

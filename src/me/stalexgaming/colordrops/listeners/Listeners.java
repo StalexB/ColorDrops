@@ -11,12 +11,11 @@ import me.stalexgaming.colordrops.managers.NexusManager;
 import me.stalexgaming.colordrops.managers.TeamManager;
 import me.stalexgaming.colordrops.player.SPlayer;
 import me.stalexgaming.colordrops.utils.*;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import me.stalexgaming.colordrops.utils.Color;
+import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
@@ -47,7 +46,11 @@ public class Listeners implements Listener {
 
     private ArrayList<String> stunned = new ArrayList<>();
 
+    private static Location neededBlock;
+
     public static boolean released = false;
+    public static boolean isPickedUp = false;
+    public static String neededBlockMaterial = "0;0";
 
     public Listeners(Main main){
         this.plugin = main;
@@ -120,6 +123,14 @@ public class Listeners implements Listener {
         if(Main.getInstance().blockspawnAreas.contains(loc)){
             Bukkit.getPluginManager().callEvent(new AreaWalkEvent(getArea(loc), p));
         }
+        if(canGetNeededBlock(p)){
+            gameManager.setCarrying(p, nexusManager.getCurrentNexusColor());
+            String[] data = neededBlockMaterial.split(";");
+            neededBlock.getBlock().setTypeIdAndData(Integer.valueOf(data[0]), Byte.valueOf(data[1]), false);
+            neededBlock = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
+
+            Bukkit.broadcastMessage(Color.np("&6The needed block was picked up by the " + teamManager.getTeam(p).getTeamName() + "&6 team!"));
+        }
         if ((int) e.getFrom().getX() != (int) e.getTo().getX() || (int) e.getFrom().getZ() != (int) e.getTo().getZ() || (int) e.getFrom().getY() != (int) e.getTo().getY()) {
             if(getTurret(loc) != null) {
                 Bukkit.getPluginManager().callEvent(new TurretWalkEvent(p, getTurret(loc)));
@@ -169,7 +180,13 @@ public class Listeners implements Listener {
         p.setHealth(20);
         p.setFoodLevel(20);
         p.setGameMode(GameMode.SPECTATOR);
-
+        if(GameManager.getCarrying(p) == nexusManager.getCurrentNexusColor()){
+            Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6team has dropped the needed block!"));
+            neededBlockMaterial = String.valueOf(p.getLocation().getBlock().getTypeId() + ";" + p.getLocation().getBlock().getData());
+            p.getLocation().getBlock().setTypeIdAndData(159, (byte) nexusManager.getCurrentNexusColor(), false);
+            neededBlock = p.getLocation();
+        }
+        gameManager.setCarrying(p, 0);
         new BukkitRunnable(){
             int i = 10;
             public void run() {
@@ -209,13 +226,28 @@ public class Listeners implements Listener {
             if (a != null) {
                 if(e.isBlockSpawn()){
                     int block = nexusManager.getColor(a);
+                    if(GameManager.getCarrying(p) == nexusManager.getCurrentNexusColor()) {
+                        if (block != nexusManager.getCurrentNexusColor()) {
+                            Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6team has dropped the needed block. It has been brought back to it's original location."));
+                            nexusManager.getNeededBlockArea().getBlockSpawnBlock().getBlock().setTypeIdAndData(159, (byte) nexusManager.getCurrentNexusColor(), false);
+                            isPickedUp = false;
+                        }
+                    }
                     gameManager.setCarrying(p, block);
+
+                    if(nexusManager.getColor(e.getArea()) == nexusManager.getCurrentNexusColor()){
+                        if(!isPickedUp) {
+                            Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6has picked up the needed block!"));
+                            a.getBlockSpawnBlock().getBlock().setType(Material.AIR);
+                            isPickedUp = true;
+                        }
+                    }
                 } else {
                     Team spawn = getTeam(a);
                     int carrying = gameManager.getCarrying(p);
                     if(spawn == teamManager.getTeam(p)){
                         if(carrying == nexusManager.getCurrentNexusColor()){
-                            Bukkit.broadcastMessage(Color.np(spawn.getColor() + p.getName() + " &6has secured the color!"));
+                            Bukkit.broadcastMessage(Color.np(spawn.getTeamName() + " &6has brought the block to their base first!"));
                             gameManager.addPoint(spawn);
                             gameManager.setCarrying(p, 0);
                             nexusManager.generateNewNexus();
@@ -329,6 +361,31 @@ public class Listeners implements Listener {
             }
         }
         return null;
+    }
+
+    public static Location getNeededBlockLocation(){
+        if(neededBlock != null){
+            return neededBlock;
+        } else {
+            return new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
+        }
+    }
+
+    public void setNeededBlockLocation(Location loc){
+        neededBlock = loc;
+    }
+
+    public boolean canGetNeededBlock(Player p){
+        if(neededBlock != null) {
+            for (Entity e : neededBlock.getWorld().getNearbyEntities(neededBlock, 2, 2, 2)) {
+                if (e == p) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
     }
 
 }

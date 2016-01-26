@@ -41,189 +41,191 @@ public class Commands implements CommandExecutor {
 
         Player p = (Player) sender;
 
-        if(cmd.getName().equalsIgnoreCase("colordrops")){
-            if(args.length == 0){
-                sendHelpMessage(p);
-                return true;
-            } else if(args.length == 1){
-                if(args[0].equalsIgnoreCase("help")){
+        if(cmd.getName().equalsIgnoreCase("colordrops")) {
+            if (p.isOp()) {
+                if (args.length == 0) {
                     sendHelpMessage(p);
                     return true;
-                } else if(args[0].equalsIgnoreCase("setlobby")){
-                    locationsFile.set("arena.lobby", locationUtil.serializeLocation(p.getLocation()));
-
-                    try {
-                        locationsFile.save(Main.getInstance().locations);
-                    } catch (IOException ex){
-                        ex.printStackTrace();
-                        plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving lobby location!");
-                    }
-                    p.sendMessage(Color.p("&7You set the &aLobby &7spawn."));
-                    return true;
-                } else if(args[0].equalsIgnoreCase("addnexusarea")){
-                    if(hasSelection(p)){
-                        List<String> nexusLocs = getNexusLocs();
-
-                        Selection s = wep.getSelection(p);
-
-                        nexusLocs.add(locationUtil.serializeLocation(s.getMinimumPoint()) + " " + locationUtil.serializeLocation(s.getMaximumPoint()));
-
-                        locationsFile.set("arena.nexus", nexusLocs);
+                } else if (args.length == 1) {
+                    if (args[0].equalsIgnoreCase("help")) {
+                        sendHelpMessage(p);
+                        return true;
+                    } else if (args[0].equalsIgnoreCase("setlobby")) {
+                        locationsFile.set("arena.lobby", locationUtil.serializeLocation(p.getLocation()));
 
                         try {
                             locationsFile.save(Main.getInstance().locations);
-                        } catch (IOException ex){
+                        } catch (IOException ex) {
                             ex.printStackTrace();
-                            plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving nexus location!");
+                            plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving lobby location!");
                         }
-                        p.sendMessage(Color.p("&7You added an area to the &aNexus&7."));
+                        p.sendMessage(Color.p("&7You set the &aLobby &7spawn."));
                         return true;
-                    } else {
-                        p.sendMessage(Color.p("&cYou need a selection in order to set an area!"));
-                        return true;
-                    }
-                } else if(args[0].equalsIgnoreCase("check")){
-                    if(arenaManager.isArenaReady()){
-                        p.sendMessage(Color.p("&7This server is &aready &7for use."));
-                        return true;
-                    } else {
-                        p.sendMessage(Color.p("&7This server is &cnot ready &7for use."));
-                        return true;
-                    }
-                } else if(args[0].equalsIgnoreCase("addturret")){
-                    List<String> turrets = getTurrets();
+                    } else if (args[0].equalsIgnoreCase("addnexusarea")) {
+                        if (hasSelection(p)) {
+                            List<String> nexusLocs = getNexusLocs();
 
-                    turrets.add(locationUtil.serializeLocation(p.getLocation()));
-
-                    locationsFile.set("arena.turrets", turrets);
-
-                    try {
-                        locationsFile.save(Main.getInstance().locations);
-                    } catch (IOException ex){
-                        ex.printStackTrace();
-                        plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving turret location!");
-                    }
-                    p.sendMessage(Color.p("&7You added a &aTurret&7."));
-                    return true;
-                }
-            } else if(args.length == 2){
-                if(args[0].equalsIgnoreCase("setblockspawn")){
-                    if(isInt(args[1])){
-                        int spawn = Integer.parseInt(args[1]);
-                        if(spawn > 0 && spawn < 9){
-                            locationsFile.set("arena.blockspawns." + spawn, locationUtil.serializeLocation(p.getLocation()));
-
-                            try {
-                                locationsFile.save(Main.getInstance().locations);
-                            } catch (IOException ex){
-                                ex.printStackTrace();
-                                plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving blockspawn location!");
-                            }
-                            p.sendMessage(Color.p("&7You set &aBlockSpawn &7number &a" + spawn + "&7."));
-                            return true;
-                        } else {
-                            p.sendMessage(Color.p("&cThe blockspawn ID must be a number between 1 and 8!"));
-                            return true;
-                        }
-                    } else {
-                        p.sendMessage(Color.p("&cThe blockspawn ID must be a number between 1 and 8!"));
-                        return true;
-                    }
-                } else if(args[0].equalsIgnoreCase("setspawnarea")){
-                    if(args[1].equalsIgnoreCase("red") || args[1].equalsIgnoreCase("blue")){
-                        if(hasSelection(p)){
                             Selection s = wep.getSelection(p);
-                            locationsFile.set("arena.spawnarea." + args[1].toLowerCase(), locationUtil.serializeLocation(s.getMinimumPoint()) + " " + locationUtil.serializeLocation(s.getMaximumPoint()));
+
+                            nexusLocs.add(locationUtil.serializeLocation(s.getMinimumPoint()) + " " + locationUtil.serializeLocation(s.getMaximumPoint()));
+
+                            locationsFile.set("arena.nexus", nexusLocs);
 
                             try {
                                 locationsFile.save(Main.getInstance().locations);
-                            } catch (IOException ex){
+                            } catch (IOException ex) {
                                 ex.printStackTrace();
-                                plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving a team spawn area location!");
+                                plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving nexus location!");
                             }
-                            p.sendMessage(Color.p("&7You set the &aspawn area &7for team &a" + args[1].toLowerCase() + "&7."));
+                            p.sendMessage(Color.p("&7You added an area to the &aNexus&7."));
                             return true;
                         } else {
                             p.sendMessage(Color.p("&cYou need a selection in order to set an area!"));
                             return true;
                         }
-                    } else {
-                        p.sendMessage(Color.p("&cThe team " + args[1] + " is invalid!"));
+                    } else if (args[0].equalsIgnoreCase("check")) {
+                        if (arenaManager.isArenaReady()) {
+                            p.sendMessage(Color.p("&7This server is &aready &7for use."));
+                            return true;
+                        } else {
+                            p.sendMessage(Color.p("&7This server is &cnot ready &7for use."));
+                            return true;
+                        }
+                    } else if (args[0].equalsIgnoreCase("addturret")) {
+                        List<String> turrets = getTurrets();
+
+                        turrets.add(locationUtil.serializeLocation(p.getLocation()));
+
+                        locationsFile.set("arena.turrets", turrets);
+
+                        try {
+                            locationsFile.save(Main.getInstance().locations);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                            plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving turret location!");
+                        }
+                        p.sendMessage(Color.p("&7You added a &aTurret&7."));
                         return true;
                     }
-                }  else if(args[0].equalsIgnoreCase("setblockspawnarea")) {
-                    if (isInt(args[1])) {
-                        int blockSpawn = Integer.parseInt(args[1]);
-                        if (blockSpawn > 0 && blockSpawn < 9) {
-                            if (hasSelection(p)) {
-                                Selection s = wep.getSelection(p);
-                                locationsFile.set("arena.blockspawnareas." + blockSpawn, locationUtil.serializeLocation(s.getMinimumPoint()) + " " + locationUtil.serializeLocation(s.getMaximumPoint()));
+                } else if (args.length == 2) {
+                    if (args[0].equalsIgnoreCase("setblockspawn")) {
+                        if (isInt(args[1])) {
+                            int spawn = Integer.parseInt(args[1]);
+                            if (spawn > 0 && spawn < 9) {
+                                locationsFile.set("arena.blockspawns." + spawn, locationUtil.serializeLocation(p.getLocation()));
 
                                 try {
                                     locationsFile.save(Main.getInstance().locations);
                                 } catch (IOException ex) {
                                     ex.printStackTrace();
-                                    plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving a block spawn area location!");
+                                    plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving blockspawn location!");
                                 }
-                                p.sendMessage(Color.p("&7You set &ablock spawn area &7for blockspawn &a" + blockSpawn + "&7."));
+                                p.sendMessage(Color.p("&7You set &aBlockSpawn &7number &a" + spawn + "&7."));
+                                return true;
+                            } else {
+                                p.sendMessage(Color.p("&cThe blockspawn ID must be a number between 1 and 8!"));
+                                return true;
+                            }
+                        } else {
+                            p.sendMessage(Color.p("&cThe blockspawn ID must be a number between 1 and 8!"));
+                            return true;
+                        }
+                    } else if (args[0].equalsIgnoreCase("setspawnarea")) {
+                        if (args[1].equalsIgnoreCase("red") || args[1].equalsIgnoreCase("blue")) {
+                            if (hasSelection(p)) {
+                                Selection s = wep.getSelection(p);
+                                locationsFile.set("arena.spawnarea." + args[1].toLowerCase(), locationUtil.serializeLocation(s.getMinimumPoint()) + " " + locationUtil.serializeLocation(s.getMaximumPoint()));
+
+                                try {
+                                    locationsFile.save(Main.getInstance().locations);
+                                } catch (IOException ex) {
+                                    ex.printStackTrace();
+                                    plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving a team spawn area location!");
+                                }
+                                p.sendMessage(Color.p("&7You set the &aspawn area &7for team &a" + args[1].toLowerCase() + "&7."));
                                 return true;
                             } else {
                                 p.sendMessage(Color.p("&cYou need a selection in order to set an area!"));
                                 return true;
                             }
                         } else {
+                            p.sendMessage(Color.p("&cThe team " + args[1] + " is invalid!"));
+                            return true;
+                        }
+                    } else if (args[0].equalsIgnoreCase("setblockspawnarea")) {
+                        if (isInt(args[1])) {
+                            int blockSpawn = Integer.parseInt(args[1]);
+                            if (blockSpawn > 0 && blockSpawn < 9) {
+                                if (hasSelection(p)) {
+                                    Selection s = wep.getSelection(p);
+                                    locationsFile.set("arena.blockspawnareas." + blockSpawn, locationUtil.serializeLocation(s.getMinimumPoint()) + " " + locationUtil.serializeLocation(s.getMaximumPoint()));
+
+                                    try {
+                                        locationsFile.save(Main.getInstance().locations);
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                        plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving a block spawn area location!");
+                                    }
+                                    p.sendMessage(Color.p("&7You set &ablock spawn area &7for blockspawn &a" + blockSpawn + "&7."));
+                                    return true;
+                                } else {
+                                    p.sendMessage(Color.p("&cYou need a selection in order to set an area!"));
+                                    return true;
+                                }
+                            } else {
+                                p.sendMessage(Color.p("&cThe blockspawn ID specified is invalid."));
+                                return true;
+                            }
+                        } else {
                             p.sendMessage(Color.p("&cThe blockspawn ID specified is invalid."));
                             return true;
                         }
-                    } else {
-                        p.sendMessage(Color.p("&cThe blockspawn ID specified is invalid."));
-                        return true;
-                    }
-                } else if(args[0].equalsIgnoreCase("setminecart")){
-                    if(args[1].equalsIgnoreCase("x") || args[1].equalsIgnoreCase("z")){
-                        locationsFile.set("arena.minecart", locationUtil.serializeLocation(p.getLocation()));
-                        locationsFile.set("arena.minecartxorz", args[1].toLowerCase());
+                    } else if (args[0].equalsIgnoreCase("setminecart")) {
+                        if (args[1].equalsIgnoreCase("x") || args[1].equalsIgnoreCase("z")) {
+                            locationsFile.set("arena.minecart", locationUtil.serializeLocation(p.getLocation()));
+                            locationsFile.set("arena.minecartxorz", args[1].toLowerCase());
 
-                        try {
-                            locationsFile.save(Main.getInstance().locations);
-                        } catch (IOException ex){
-                            ex.printStackTrace();
-                            plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving minecart spawn location!");
+                            try {
+                                locationsFile.save(Main.getInstance().locations);
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                                plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving minecart spawn location!");
+                            }
+                            p.sendMessage(Color.p("&7You set the &aminecart &7starting point."));
+                            return true;
+                        } else {
+                            p.sendMessage(Color.p("&cYou must specify either X or Z!"));
+                            return true;
                         }
-                        p.sendMessage(Color.p("&7You set the &aminecart &7starting point."));
-                        return true;
-                    } else {
-                        p.sendMessage(Color.p("&cYou must specify either X or Z!"));
-                        return true;
                     }
-                }
-            } else if(args.length == 3){
-                if(args[0].equalsIgnoreCase("setspawn")){
-                    if(args[1].equalsIgnoreCase("red") || args[1].equals("blue")){
-                        if(isInt(args[2])){
-                            int point = Integer.parseInt(args[2]);
-                            if(point > 0 && point < 6){
-                                locationsFile.set("arena.spawns." + args[1].toLowerCase() + "." + point, locationUtil.serializeLocation(p.getLocation()));
+                } else if (args.length == 3) {
+                    if (args[0].equalsIgnoreCase("setspawn")) {
+                        if (args[1].equalsIgnoreCase("red") || args[1].equals("blue")) {
+                            if (isInt(args[2])) {
+                                int point = Integer.parseInt(args[2]);
+                                if (point > 0 && point < 6) {
+                                    locationsFile.set("arena.spawns." + args[1].toLowerCase() + "." + point, locationUtil.serializeLocation(p.getLocation()));
 
-                                try {
-                                    locationsFile.save(Main.getInstance().locations);
-                                } catch (IOException ex){
-                                    ex.printStackTrace();
-                                    plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving a team spawn location!");
+                                    try {
+                                        locationsFile.save(Main.getInstance().locations);
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                        plugin.getLogger().log(Level.SEVERE, "[ColorDrops] Error while saving a team spawn location!");
+                                    }
+                                    p.sendMessage(Color.p("&7You set &spawn &7number &a" + point + " &7for team &a" + args[1].toLowerCase() + "&7."));
+                                    return true;
+                                } else {
+                                    p.sendMessage(Color.p("&cThe spawn ID must be a number between 1 and 6!"));
+                                    return true;
                                 }
-                                p.sendMessage(Color.p("&7You set &spawn &7number &a" + point + " &7for team &a" + args[1].toLowerCase() + "&7."));
-                                return true;
                             } else {
                                 p.sendMessage(Color.p("&cThe spawn ID must be a number between 1 and 6!"));
                                 return true;
                             }
                         } else {
-                            p.sendMessage(Color.p("&cThe spawn ID must be a number between 1 and 6!"));
+                            p.sendMessage(Color.p("&cThe specified team: " + args[1] + ", is invalid."));
                             return true;
                         }
-                    } else {
-                        p.sendMessage(Color.p("&cThe specified team: " + args[1] + ", is invalid."));
-                        return true;
                     }
                 }
             }
@@ -232,13 +234,18 @@ public class Commands implements CommandExecutor {
     }
 
     private void sendHelpMessage(Player p){
-        p.sendMessage("&b&l/");
-        p.sendMessage("&b&l/");
-        p.sendMessage("&b&l/");
-        p.sendMessage("&b&l/");
-        p.sendMessage("&b&l/");
-        p.sendMessage("&b&l/");
-        p.sendMessage("&b&l/");
+        p.sendMessage(Color.np("&7&m--------------------------------------"));
+        p.sendMessage(Color.np("&a/colordrops setlobby &7- Sets the lobby spawn"));
+        p.sendMessage(Color.np("&a/colordrops setspawn [red/blue] [1-5] &7- Sets the arena spawns"));
+        p.sendMessage(Color.np("&a/colordrops setblockspawn [1-8] &7- Sets a blockspawn at your location"));
+        p.sendMessage(Color.np("&a/colordrops setblockspawnarea [1-8] &7- sets the capture area that corresponds to the blockspawn numbers"));
+        p.sendMessage(Color.np("&a/colordrops addnexusarea &7- Adds the specific worldedit selection to the nexus"));
+        p.sendMessage(Color.np("&a/colordrops setminecart [x/z] &7- Sets the minecart start location."));
+        p.sendMessage(Color.np("&7The x makes the minecart move over the x-axis. z over the z-axis."));
+        p.sendMessage(Color.np("&a/colordrops setspawnarea [red/blue] &7- Sets the spawnarea for a team (For capturing blocks)"));
+        p.sendMessage(Color.np("&a/colordrops addturret &7- Adds a turret to your location"));
+        p.sendMessage(Color.np("&a/colordrops check &7- Shows you if the server is ready for use"));
+        p.sendMessage(Color.np("&7&m--------------------------------------"));
     }
 
     private boolean isInt(String s){
