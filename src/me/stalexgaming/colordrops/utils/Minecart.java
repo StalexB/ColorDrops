@@ -2,6 +2,7 @@ package me.stalexgaming.colordrops.utils;
 
 import me.stalexgaming.colordrops.Main;
 import me.stalexgaming.colordrops.enums.Team;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -42,18 +43,18 @@ public class Minecart {
         Location loc = minecart.getLocation();
         if(xOrZ.equalsIgnoreCase("x")){
             if(team == Team.RED) {
-                minecart.setVelocity(minecart.getLocation().getDirection().setX(minecart.getLocation().getDirection().getX() + 0.5));
+                minecart.setVelocity(new Vector(0.5, 0, 0));
                 stop(loc, "plus");
             } else if(team == Team.BLUE){
-                minecart.setVelocity(minecart.getLocation().getDirection().setX(minecart.getLocation().getDirection().getX() - 0.5));
+                minecart.setVelocity(new Vector(-0.5, 0, 0));
                 stop(loc, "minus");
             }
         } else if(xOrZ.equalsIgnoreCase("z")){
             if(team == Team.RED) {
-                minecart.setVelocity(minecart.getLocation().getDirection().setZ(minecart.getLocation().getDirection().getZ() + 0.5));
+                minecart.setVelocity(new Vector(0, 0, 0.5));
                 stop(loc, "plus");
             } else if(team == Team.BLUE){
-                minecart.setVelocity(minecart.getLocation().getDirection().setZ(minecart.getLocation().getDirection().getZ() - 0.5));
+                minecart.setVelocity(new Vector(0, 0, -0.5));
                 stop(loc, "minus");
             }
         }

@@ -37,7 +37,7 @@ public class GameManager {
 
     private static int minecart = 0;
 
-    public static Minecart mc;
+    private static Minecart mc;
 
     ArenaManager arenaManager = ArenaManager.getInstance();
     TeamManager teamManager = TeamManager.getInstance();
@@ -87,6 +87,7 @@ public class GameManager {
         org.bukkit.entity.Minecart mc = (org.bukkit.entity.Minecart) loc.getWorld().spawnEntity(loc, EntityType.MINECART);
 
         Minecart minecart = new Minecart(mc, locationsFile.getString("arena.minecartxorz"));
+
         this.mc = minecart;
 
         for(Team team : teamManager.getTeams()){
@@ -232,7 +233,7 @@ public class GameManager {
         }.runTaskTimer(Main.getInstance(), 0, 20);
     }
 
-    public void addPoint(Team team){
+    public static void addPoint(Team team){
         if(team == Team.BLUE){
             minecart--;
             mc.moveMineCart(Team.BLUE);
@@ -244,7 +245,7 @@ public class GameManager {
         }
     }
 
-    public void checkWin(){
+    public static void checkWin(){
         if(minecart <= -4){
             GameState.setState(GameState.ENDING);
             Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);

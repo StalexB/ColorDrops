@@ -248,7 +248,7 @@ public class Listeners implements Listener {
                     if(spawn == teamManager.getTeam(p)){
                         if(carrying == nexusManager.getCurrentNexusColor()){
                             Bukkit.broadcastMessage(Color.np(spawn.getTeamName() + " &6team has brought the block to their base first!"));
-                            gameManager.addPoint(spawn);
+                            GameManager.addPoint(spawn);
                             gameManager.setCarrying(p, 0);
                             nexusManager.generateNewNexus();
                         }
