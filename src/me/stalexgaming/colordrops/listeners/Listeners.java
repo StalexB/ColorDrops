@@ -237,7 +237,7 @@ public class Listeners implements Listener {
 
                     if(nexusManager.getColor(e.getArea()) == nexusManager.getCurrentNexusColor()){
                         if(!isPickedUp) {
-                            Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6has picked up the needed block!"));
+                            Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6team has picked up the needed block!"));
                             a.getBlockSpawnBlock().getBlock().setType(Material.AIR);
                             isPickedUp = true;
                         }
@@ -247,7 +247,7 @@ public class Listeners implements Listener {
                     int carrying = gameManager.getCarrying(p);
                     if(spawn == teamManager.getTeam(p)){
                         if(carrying == nexusManager.getCurrentNexusColor()){
-                            Bukkit.broadcastMessage(Color.np(spawn.getTeamName() + " &6has brought the block to their base first!"));
+                            Bukkit.broadcastMessage(Color.np(spawn.getTeamName() + " &6team has brought the block to their base first!"));
                             gameManager.addPoint(spawn);
                             gameManager.setCarrying(p, 0);
                             nexusManager.generateNewNexus();

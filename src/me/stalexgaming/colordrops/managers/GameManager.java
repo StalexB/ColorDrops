@@ -120,6 +120,104 @@ public class GameManager {
                     this.cancel();
 
                     startCounter();
+                    setTimeLimit();
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 20);
+    }
+
+    public void setTimeLimit(){
+        new BukkitRunnable(){
+            int timer = 600;
+
+            @Override
+            public void run() {
+                timer--;
+                if(timer == 30 || timer == 10 || timer == 5){
+                    Bukkit.broadcastMessage(Color.np("&3Time limit reached in &b" + timer + " &3seconds!"));
+                }
+                if(timer <= 0){
+                    this.cancel();
+                    if(minecart < 0){
+                        GameState.setState(GameState.ENDING);
+                        Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);
+                        win.sendToTeam(Team.BLUE);
+                        Title lose = new Title(Color.np("&cYou lost!"), "", 15, 40, 15);
+                        lose.sendToTeam(Team.RED);
+
+                        Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &b&lBLUE&6!"));
+
+                        Main.isGameWon = true;
+                        GameState.setState(GameState.ENDING);
+
+                        new BukkitRunnable(){
+                            public void run() {
+                                for (Player p : Bukkit.getOnlinePlayers()) {
+                                    ByteArrayOutputStream b = new ByteArrayOutputStream();
+                                    DataOutputStream out = new DataOutputStream(b);
+                                    try {
+                                        out.writeUTF("Connect");
+                                        out.writeUTF("lobby");
+                                    } catch (IOException ex) {}
+                                    p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
+                                }
+                                mc.remove();
+                                Bukkit.getServer().shutdown();
+                            }
+                        }.runTaskLater(Main.getInstance(), 100);
+                    } else if(minecart > 0){
+                        GameState.setState(GameState.ENDING);
+                        Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);
+                        win.sendToTeam(Team.RED);
+                        Title lose = new Title(Color.np("&cYou lost!"), "", 15, 40, 15);
+                        lose.sendToTeam(Team.BLUE);
+
+                        Bukkit.broadcastMessage(Color.np("&6ColorDrops was won by team &c&lRED&6!"));
+
+                        Main.isGameWon = true;
+                        GameState.setState(GameState.ENDING);
+
+                        new BukkitRunnable(){
+                            public void run() {
+                                for (Player p : Bukkit.getOnlinePlayers()) {
+                                    ByteArrayOutputStream b = new ByteArrayOutputStream();
+                                    DataOutputStream out = new DataOutputStream(b);
+                                    try {
+                                        out.writeUTF("Connect");
+                                        out.writeUTF("lobby");
+                                    } catch (IOException ex) {}
+                                    p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
+                                }
+                                mc.remove();
+                                Bukkit.getServer().shutdown();
+                            }
+                        }.runTaskLater(Main.getInstance(), 100);
+                    } else {
+                        GameState.setState(GameState.ENDING);
+                        Title tie = new Title(Color.np("&3It's a tie!"), "", 15, 40, 15);
+                        tie.sendToAllPlayers();
+
+                        Bukkit.broadcastMessage(Color.np("&6ColorDrops has ended in a tie!"));
+
+                        Main.isGameWon = true;
+                        GameState.setState(GameState.ENDING);
+
+                        new BukkitRunnable(){
+                            public void run() {
+                                for (Player p : Bukkit.getOnlinePlayers()) {
+                                    ByteArrayOutputStream b = new ByteArrayOutputStream();
+                                    DataOutputStream out = new DataOutputStream(b);
+                                    try {
+                                        out.writeUTF("Connect");
+                                        out.writeUTF("lobby");
+                                    } catch (IOException ex) {}
+                                    p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
+                                }
+                                mc.remove();
+                                Bukkit.getServer().shutdown();
+                            }
+                        }.runTaskLater(Main.getInstance(), 100);
+                    }
                 }
             }
         }.runTaskTimer(Main.getInstance(), 0, 20);

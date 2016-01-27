@@ -103,6 +103,7 @@ public class Main extends JavaPlugin {
                         for (double z = minimum.getZ(); z <= maximum.getZ(); z++) {
                             Location loc = new Location(minimum.getWorld(), x, y, z);
                             if (!nexus.contains(loc)) {
+                                loc.getBlock().setTypeIdAndData(159, (byte) 8, false);
                                 nexus.add(loc);
                             }
                         }

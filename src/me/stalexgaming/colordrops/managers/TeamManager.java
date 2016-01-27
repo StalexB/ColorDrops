@@ -48,12 +48,12 @@ public class TeamManager {
 
         if(team == Team.RED) {
             p.sendMessage(" ");
-            p.sendMessage(Color.np("&6&l               No Name"));
+            p.sendMessage(Color.np("&6&l               ColorDrops"));
             p.sendMessage(Color.np("&6&l     You joined the &c&lred &6&lteam!"));
             p.sendMessage(" ");
         } else {
             p.sendMessage(" ");
-            p.sendMessage(Color.np("&6&l               No Name"));
+            p.sendMessage(Color.np("&6&l               ColorDrops"));
             p.sendMessage(Color.np("&6&l     You joined the &b&lblue &6&lteam!"));
             p.sendMessage(" ");
         }

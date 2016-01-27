@@ -31,7 +31,6 @@ public class ScoreboardUtil {
 
     ArenaManager arenaManager = ArenaManager.getInstance();
     TeamManager teamManager = TeamManager.getInstance();
-    NexusManager nexusManager = NexusManager.getInstance();
 
     public void setScoreboards(){
         if(arenaManager.isArenaReady()) {
@@ -143,7 +142,7 @@ public class ScoreboardUtil {
         lines.add(Color.np("&6Minecart:"));
         lines.add(Color.np(getMineCartStatus()));
         lines.add("  ");
-        lines.add(Color.np("&6Nexus time: &e" + NexusManager.getTimer()));
+        lines.add(Color.np("&6Nexus time: &e" + NexusManager.timer));
 
         return lines;
     }

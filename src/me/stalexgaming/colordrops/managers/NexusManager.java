@@ -38,7 +38,7 @@ public class NexusManager {
     GameManager gameManager = GameManager.getInstance();
 
     private HashMap<Area, Integer> blockSpawns = new HashMap<>();
-    private static int timer = 0;
+    public static int timer = 0;
     private int currentNexusColor = 14;
     private Area neededArea;
 
@@ -46,15 +46,16 @@ public class NexusManager {
 
     public void startNexus(){
         FileConfiguration locationsFile = YamlConfiguration.loadConfiguration(Main.getInstance().locations);
+        generateNewNexus = true;
         new BukkitRunnable(){
-            int i = 0;
+            int i = 120;
             @Override
             public void run() {
                 if(!Main.isGameWon) {
                     if (generateNewNexus) {
-                        i = 120;
+                        i = 0;
                     }
-                    if (i % 120 == 0) {
+                    if (i == 0) {
                         String[] data = Listeners.neededBlockMaterial.split(";");
                         Listeners.getNeededBlockLocation().getBlock().setTypeIdAndData(Integer.valueOf(data[0]), Byte.valueOf(data[1]), false);
 
@@ -92,17 +93,17 @@ public class NexusManager {
 
                         if(!generateNewNexus) { Bukkit.broadcastMessage(Color.np("&6The Nexus has changed its color!")); }
                         if(generateNewNexus) { Bukkit.broadcastMessage(Color.np("&6The Nexus suddenly changed its color!")); }
-                        i++;
-                        if(timer % 4 == 0) {
-                            timer = (i % 120)/4;
+                        i--;
+                        i = 120;
+                        if(i % 4 == 0) {
+                            timer = (i / 4)/1;
                         }
                         generateNewNexus = false;
                         Listeners.isPickedUp = false;
-                        timer = 0;
                     }
-                    i++;
-                    if(timer % 4 == 0) {
-                        timer = (i / 4);
+                    i--;
+                    if(i % 4 == 0) {
+                        timer = (i / 4)/1;
                     }
                     generateNewNexus = false;
                 } else {
