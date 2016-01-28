@@ -43,12 +43,13 @@ public class GameManager {
     TeamManager teamManager = TeamManager.getInstance();
     LocationUtil locationUtil = LocationUtil.getInstance();
     NexusManager nexusManager = NexusManager.getInstance();
+    BlockManager blockManager = BlockManager.getInstance();
 
     public void countdown(){
         if(arenaManager.isArenaReady()) {
             int minimumPlayers = Main.getInstance().minimumPlayers;
             new BukkitRunnable() {
-                int counter = 45;
+                int counter = 10;
 
                 public void run() {
                     if (Bukkit.getOnlinePlayers().size() >= minimumPlayers) {
@@ -65,7 +66,7 @@ public class GameManager {
                             this.cancel();
                         }
                     } else {
-                        counter = 45;
+                        counter = 10;
                     }
                 }
             }.runTaskTimer(Main.getInstance(), 0, 20);
@@ -115,7 +116,7 @@ public class GameManager {
                     Listeners.released = true;
                     Bukkit.broadcastMessage(Color.np("&6The game has started!"));
 
-                    Title title = new Title(Color.np("&6Released!"), "", 10, 30, 10);
+                    Title title = new Title(Color.np("&6The game has started!"), "", 10, 30, 10);
                     title.sendToAllPlayers();
 
                     this.cancel();
@@ -141,6 +142,7 @@ public class GameManager {
                     this.cancel();
                     if(minecart < 0){
                         GameState.setState(GameState.ENDING);
+                        blockManager.resetAll();
                         Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);
                         win.sendToTeam(Team.BLUE);
                         Title lose = new Title(Color.np("&cYou lost!"), "", 15, 40, 15);

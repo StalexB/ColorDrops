@@ -52,4 +52,14 @@ public enum Team {
             return null;
         }
     }
+
+    public Team getOpposite(){
+        if(this == RED){
+            return BLUE;
+        } else if(this == BLUE){
+            return RED;
+        } else {
+            return null;
+        }
+    }
 }

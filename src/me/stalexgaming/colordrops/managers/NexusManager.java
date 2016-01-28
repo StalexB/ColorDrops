@@ -33,11 +33,9 @@ public class NexusManager {
     }
 
     LocationUtil locationUtil = LocationUtil.getInstance();
-    ScoreboardUtil scoreboardUtil = ScoreboardUtil.getInstance();
-    Listeners listeners = new Listeners(Main.getInstance());
-    GameManager gameManager = GameManager.getInstance();
+    BlockManager blockManager = BlockManager.getInstance();
 
-    private HashMap<Area, Integer> blockSpawns = new HashMap<>();
+    private static HashMap<Area, Integer> blockSpawns = new HashMap<>();
     public static int timer = 0;
     private int currentNexusColor = 14;
     private Area neededArea;
@@ -56,6 +54,7 @@ public class NexusManager {
                         i = 0;
                     }
                     if (i == 0) {
+                        blockManager.resetAll();
                         String[] data = Listeners.neededBlockMaterial.split(";");
                         Listeners.getNeededBlockLocation().getBlock().setTypeIdAndData(Integer.valueOf(data[0]), Byte.valueOf(data[1]), false);
 
@@ -81,10 +80,6 @@ public class NexusManager {
                                 areaId = t;
                                 t++;
                             }
-                        }
-
-                        for(Player p : Bukkit.getOnlinePlayers()){
-                            GameManager.setCarrying(p, 0);
                         }
 
                         Location loc = getBlockSpawnLocations().get(areaId - 1);
@@ -188,8 +183,12 @@ public class NexusManager {
         }
     }
 
-    public int getColor(Area a){
-        return blockSpawns.get(a);
+    public static int getColor(Area a){
+        if(blockSpawns.get(a) != null) {
+            return blockSpawns.get(a);
+        } else {
+            return 8;
+        }
     }
 
     public int getCurrentNexusColor(){
