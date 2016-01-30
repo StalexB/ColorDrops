@@ -165,9 +165,14 @@ public class GameManager {
                                     p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
                                 }
                                 mc.remove();
-                                Bukkit.getServer().shutdown();
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        Bukkit.getServer().shutdown();
+                                    }
+                                }.runTaskLater(Main.getInstance(), 40);
                             }
-                        }.runTaskLater(Main.getInstance(), 100);
+                        }.runTaskLater(Main.getInstance(), 300);
                     } else if(minecart > 0){
                         GameState.setState(GameState.ENDING);
                         Title win = new Title(Color.np("&aYou won!"), "", 15, 40, 15);
@@ -192,9 +197,14 @@ public class GameManager {
                                     p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
                                 }
                                 mc.remove();
-                                Bukkit.getServer().shutdown();
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        Bukkit.getServer().shutdown();
+                                    }
+                                }.runTaskLater(Main.getInstance(), 40);
                             }
-                        }.runTaskLater(Main.getInstance(), 100);
+                        }.runTaskLater(Main.getInstance(), 300);
                     } else {
                         GameState.setState(GameState.ENDING);
                         Title tie = new Title(Color.np("&3It's a tie!"), "", 15, 40, 15);
@@ -217,9 +227,14 @@ public class GameManager {
                                     p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
                                 }
                                 mc.remove();
-                                Bukkit.getServer().shutdown();
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                        Bukkit.getServer().shutdown();
+                                    }
+                                }.runTaskLater(Main.getInstance(), 40);
                             }
-                        }.runTaskLater(Main.getInstance(), 100);
+                        }.runTaskLater(Main.getInstance(), 300);
                     }
                 }
             }
@@ -272,7 +287,12 @@ public class GameManager {
                         p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
                     }
                     mc.remove();
-                    Bukkit.getServer().shutdown();
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Bukkit.getServer().shutdown();
+                        }
+                    }.runTaskLater(Main.getInstance(), 40);
                 }
             }.runTaskLater(Main.getInstance(), 300);
         } else if(minecart >= 4){
@@ -299,7 +319,12 @@ public class GameManager {
                         p.sendPluginMessage(Main.getInstance(), "BungeeCord", b.toByteArray());
                     }
                     mc.remove();
-                    Bukkit.getServer().shutdown();
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Bukkit.getServer().shutdown();
+                        }
+                    }.runTaskLater(Main.getInstance(), 40);
                 }
             }.runTaskLater(Main.getInstance(), 300);
         }

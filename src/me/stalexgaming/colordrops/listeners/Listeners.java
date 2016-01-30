@@ -129,12 +129,14 @@ public class Listeners implements Listener {
                 blockManager.pickUpBlock(p);
         }
         if(canGetNeededBlock(p)){
-            gameManager.setCarrying(p, nexusManager.getCurrentNexusColor());
-            String[] data = neededBlockMaterial.split(";");
-            neededBlock.getBlock().setTypeIdAndData(Integer.valueOf(data[0]), Byte.valueOf(data[1]), false);
-            neededBlock = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
+            if(p.getGameMode() == GameMode.SURVIVAL) {
+                gameManager.setCarrying(p, nexusManager.getCurrentNexusColor());
+                String[] data = neededBlockMaterial.split(";");
+                neededBlock.getBlock().setTypeIdAndData(Integer.valueOf(data[0]), Byte.valueOf(data[1]), false);
+                neededBlock = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
 
-            Bukkit.broadcastMessage(Color.np("&6The needed block was picked up by the " + teamManager.getTeam(p).getTeamName() + "&6 team!"));
+                Bukkit.broadcastMessage(Color.np("&6The needed block was picked up by the " + teamManager.getTeam(p).getTeamName() + "&6 team!"));
+            }
         }
         if ((int) e.getFrom().getX() != (int) e.getTo().getX() || (int) e.getFrom().getZ() != (int) e.getTo().getZ() || (int) e.getFrom().getY() != (int) e.getTo().getY()) {
             if(getTurret(loc) != null) {
@@ -229,55 +231,57 @@ public class Listeners implements Listener {
             Player p = e.getPlayer();
             Area a = e.getArea();
 
-            if (a != null) {
-                if(e.isBlockSpawn()){
-                    int block = nexusManager.getColor(a);
-                    if(GameManager.getCarrying(p) == nexusManager.getCurrentNexusColor()) {
-                        if (block != nexusManager.getCurrentNexusColor()) {
-                            if (!blockManager.isTaken(a)) {
-                                Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6team has dropped the needed block. It has been brought back to it's original location."));
-                                nexusManager.getNeededBlockArea().getBlockSpawnBlock().getBlock().setTypeIdAndData(159, (byte) nexusManager.getCurrentNexusColor(), false);
-                                blockManager.forcePickUpBlock(p, a);
-                                isPickedUp = false;
+            if (p.getGameMode() == GameMode.SURVIVAL) {
+                if (a != null) {
+                    if (e.isBlockSpawn()) {
+                        int block = nexusManager.getColor(a);
+                        if (GameManager.getCarrying(p) == nexusManager.getCurrentNexusColor()) {
+                            if (block != nexusManager.getCurrentNexusColor()) {
+                                if (!blockManager.isTaken(a)) {
+                                    Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6team has dropped the needed block. It has been brought back to it's original location."));
+                                    nexusManager.getNeededBlockArea().getBlockSpawnBlock().getBlock().setTypeIdAndData(159, (byte) nexusManager.getCurrentNexusColor(), false);
+                                    blockManager.forcePickUpBlock(p, a);
+                                    isPickedUp = false;
+                                }
                             }
+                        } else if (!blockManager.isTaken(a)) {
+                            blockManager.forcePickUpBlock(p, a);
                         }
-                    } else if(!blockManager.isTaken(a)){
-                        blockManager.forcePickUpBlock(p, a);
-                    }
 
-                    if(nexusManager.getColor(e.getArea()) == nexusManager.getCurrentNexusColor()){
-                        if(!isPickedUp) {
-                            Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6team has picked up the needed block!"));
-                            a.getBlockSpawnBlock().getBlock().setType(Material.AIR);
-                            if(GameManager.getCarrying(p) != 0 && GameManager.getCarrying(p) != nexusManager.getCurrentNexusColor()){
-                                blockManager.resetBlock(a.getBlockSpawnBlock(), a);
-                            }
-                            GameManager.setCarrying(p, nexusManager.getCurrentNexusColor());
-                            isPickedUp = true;
-                        }
-                    }
-                } else {
-                    Team spawn = getTeam(a);
-                    int carrying = gameManager.getCarrying(p);
-                    if(spawn == teamManager.getTeam(p)){
-                        if(carrying == nexusManager.getCurrentNexusColor()){
-                            Bukkit.broadcastMessage(Color.np("&6The " + spawn.getTeamName() + " &6team has brought the block to their base first!"));
-                            GameManager.addPoint(spawn);
-                            gameManager.setCarrying(p, 0);
-                            nexusManager.generateNewNexus();
-                        } else {
-                            if(carrying != 0) {
-                                GameManager.addPoint(teamManager.getTeam(p).getOpposite());
-                                GameManager.setCarrying(p, 0);
-                                Bukkit.broadcastMessage(Color.np("&cThe " + spawn.getTeamName() + " &cteam has brought the wrong block to their base!"));
+                        if (nexusManager.getColor(e.getArea()) == nexusManager.getCurrentNexusColor()) {
+                            if (!isPickedUp) {
+                                Bukkit.broadcastMessage(Color.np("&6The " + teamManager.getTeam(p).getTeamName() + " &6team has picked up the needed block!"));
+                                a.getBlockSpawnBlock().getBlock().setType(Material.AIR);
+                                if (GameManager.getCarrying(p) != 0 && GameManager.getCarrying(p) != nexusManager.getCurrentNexusColor()) {
+                                    blockManager.resetBlock(a.getBlockSpawnBlock(), a);
+                                }
+                                GameManager.setCarrying(p, nexusManager.getCurrentNexusColor());
+                                isPickedUp = true;
                             }
                         }
                     } else {
-                        if(GameManager.getCarrying(p) == nexusManager.getCurrentNexusColor()){
-                            Bukkit.broadcastMessage(Color.np("&cThe " + spawn.getOpposite().getTeamName() + " &cteam has brought the block to the wrong base!"));
-                            GameManager.addPoint(spawn);
-                            gameManager.setCarrying(p, 0);
-                            nexusManager.generateNewNexus();
+                        Team spawn = getTeam(a);
+                        int carrying = gameManager.getCarrying(p);
+                        if (spawn == teamManager.getTeam(p)) {
+                            if (carrying == nexusManager.getCurrentNexusColor()) {
+                                Bukkit.broadcastMessage(Color.np("&6The " + spawn.getTeamName() + " &6team has brought the block to their base first!"));
+                                GameManager.addPoint(spawn);
+                                gameManager.setCarrying(p, 0);
+                                nexusManager.generateNewNexus();
+                            } else {
+                                if (carrying != 0) {
+                                    GameManager.addPoint(teamManager.getTeam(p).getOpposite());
+                                    GameManager.setCarrying(p, 0);
+                                    Bukkit.broadcastMessage(Color.np("&cThe " + spawn.getTeamName() + " &cteam has brought the wrong block to their base!"));
+                                }
+                            }
+                        } else {
+                            if (GameManager.getCarrying(p) == nexusManager.getCurrentNexusColor()) {
+                                Bukkit.broadcastMessage(Color.np("&cThe " + spawn.getOpposite().getTeamName() + " &cteam has brought the block to the wrong base!"));
+                                GameManager.addPoint(spawn);
+                                gameManager.setCarrying(p, 0);
+                                nexusManager.generateNewNexus();
+                            }
                         }
                     }
                 }
